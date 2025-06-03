@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "PreGrade",
+  "version": "0.1",
+  "description": "Estimate Canvas assignment grades using GPT.",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["https://canvas.*/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://canvas.uw.edu/courses/*/assignments/*"],
+       "js": ["content.js"]
+    }
+  ]
+}
