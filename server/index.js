@@ -24,19 +24,18 @@ app.post('/api/bodytext', async (req, res) => {
     return res.status(400).json({ error: "Missing assignmentText" });
   }
 
-  console.log("Received assignmentText:");
-  console.log(assignmentText.slice(0, 500) + "...");
   try {
-    const response = await genAI.generateText({
-        prompt: `Summarize the following text in one sentence: ${assignmentText}`,
-        maxOutputTokens: 300,
-    })
-    const summary = response.generatedText
-    res.json({ insights: `Received and processed: ${summary}` });
-    } catch (error) {
-        console.error("Error generating text with Gemini:", error);
-        res.status(500).json({ error: "Failed to generate text" });
-    }
+    const model = genAI.getGenerativeModel({ model: "models/gemini-pro" });
+
+    const result = await model.generateContent(assignmentText);
+    const response = await result.response;
+    const text = response.text();
+
+    res.json({ insights: text });
+  } catch (error) {
+    console.error("Error generating text with Gemini:", error);
+    res.status(500).json({ error: "Failed to generate text" });
+  }
 });
 
 app.listen(PORT, () => {
