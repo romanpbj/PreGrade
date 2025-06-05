@@ -2,10 +2,9 @@ import { useState } from "react";
 import axios from "axios";
 
 function App() {
+  const [file, setFile] = useState(null);
 
-  const [file, setFile] = useState([]);
-
-  function handleChange(e){
+  function handleChange(e) {
     setFile(e.target.files[0]);
   }
 
@@ -34,14 +33,11 @@ function App() {
       }
 
       try {
-        const res = await fetch("http://localhost:3001/api/bodyText", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ assignmentText: response.assignmentText })
+        const res = await axios.post("http://localhost:3001/api/bodyText", {
+          assignmentText: response.assignmentText
         });
 
-        const data = await res.json();
-        alert("Gemini response: " + data.insights);
+        alert("Gemini response: " + res.data.insights);
       } catch (err) {
         alert("Error contacting backend");
         console.error(err);
@@ -52,10 +48,15 @@ function App() {
   return (
     <div style={{ padding: "1rem" }}>
       <h2>PreGrade</h2>
+
       <form onSubmit={handleSubmit}>
         <input type="file" onChange={handleChange} />
-        <button type="submit">Grade</button>
+        <button type="submit">Upload File</button>
       </form>
+
+      <hr />
+
+      <button onClick={test}>Test Assignment Grading</button>
     </div>
   );
 }
