@@ -1,11 +1,14 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from "dotenv"
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { OpenAI } from 'openai'
+
 
 dotenv.config();
 
-const genAI = new GoogleGenerativeAI(process.env.API_KEY);
+const openai = new OpenAI({
+    apiKey: process.env.API_KEY,
+})
 
 const app = express()
 const PORT = 3001
@@ -25,17 +28,20 @@ app.post('/api/bodytext', async (req, res) => {
   }
 
   try {
-    async function run() {
-        const model = await genAI.getGenerativeModel({ model: "models/gemini-pro" }); 
-        const result = await model.generateContent(assignmentText); 
-        const response = await result.response; 
-        return response.text(); 
-    }
+    const completetion = await openai.chat.completions.create({ 
+        model: "gpt-4",
+        messages: [
+            { role: "system", content: "You are a helpful assistant that generates insights from text." },
+            { role: "user", content: `Generate insights from the following text: ${assignmentText}` }
+        ],
+        temperature: 0.7,
+        max_tokens: 500,
+     });
 
-    const text = await run();
-    res.json({ insights: text });
+    const aiResponse = completetion.choices[0].message.content;
+    res.json({ insights: aiResponse });
   } catch (error) {
-    console.error("Error generating text with Gemini:", error);
+    console.error("Error generating text with OpenAI:", error);
     res.status(500).json({ error: "Failed to generate text" });
   }
 });
