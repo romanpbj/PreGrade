@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from "dotenv"
 import { GoogleGenAI } from "@google/genai";
+import bodytext from '../client/public/content.js'
 
 dotenv.config();
 
@@ -15,6 +16,10 @@ app.use(express.json())
 
 app.get('/', (req, res) => {
     res.send("Backend is up")
+});
+
+app.get('/api/bodytext', (req, res) => {
+    res.json({ bodyText });
 });
 
 app.listen(PORT, () => {
