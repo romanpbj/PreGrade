@@ -25,12 +25,14 @@ app.post('/api/bodytext', async (req, res) => {
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "models/gemini-pro" });
+    async function run() {
+        const model = await genAI.getGenerativeModel({ model: "models/gemini-pro" }); 
+        const result = await model.generateContent(assignmentText); 
+        const response = await result.response; 
+        return response.text(); 
+    }
 
-    const result = await model.generateContent(assignmentText);
-    const response = await result.response;
-    const text = response.text();
-
+    const text = await run();
     res.json({ insights: text });
   } catch (error) {
     console.error("Error generating text with Gemini:", error);
