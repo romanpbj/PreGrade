@@ -19,7 +19,12 @@ app.get('/', (req, res) => {
 });
 
 app.get('/api/bodytext', (req, res) => {
-    res.json({ bodyText });
+    const { assignmentText } = req.body;
+    if (!assignmentText) {
+      return res.status(400).json({ error: "Missing assignmentText" });
+    }
+    const insights = `Processed insights for: ${assignmentText}`;
+    res.json({ insights });
 });
 
 app.listen(PORT, () => {
