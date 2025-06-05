@@ -18,7 +18,7 @@ app.get('/', (req, res) => {
     res.send("Backend is up")
 });
 
-app.get('/api/bodytext', (req, res) => {
+app.post('/api/bodytext', (req, res) => {
     const { assignmentText } = req.body;
     if (!assignmentText) {
       return res.status(400).json({ error: "Missing assignmentText" });
