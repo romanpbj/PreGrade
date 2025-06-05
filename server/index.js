@@ -1,5 +1,11 @@
 import express from 'express'
 import cors from 'cors'
+import dotenv from "dotenv"
+import { GoogleGenAI } from "@google/genai";
+
+dotenv.config();
+
+const genAI = new GoogleGenAI(ProcessingInstruction.env.API_KEY);
 
 const app = express()
 const PORT = 3001
