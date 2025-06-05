@@ -1,7 +1,7 @@
-console.log("PreGrade content.js loaded");
-
-console.log("PreGrade content.js loaded");
-
-const bodyText = document.body.innerText.trim();
-
-console.log("Full Assignment Page Text:\n", bodyText);
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (msg.type === "SCRAPE_TEXT") {
+    const assignmentText = document.body.innerText.trim();
+    sendResponse({ assignmentText });
+    return true;
+  }
+});

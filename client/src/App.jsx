@@ -25,6 +25,30 @@ function App() {
     }
   }
 
+  async function test() {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+    chrome.tabs.sendMessage(tab.id, { type: "SCRAPE_TEXT" }, async (response) => {
+      if (!response?.assignmentText) {
+        return alert("Failed to get assignment text.");
+      }
+
+      try {
+        const res = await fetch("http://localhost:3001/api/bodyText", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ assignmentText: response.assignmentText })
+        });
+
+        const data = await res.json();
+        alert("Gemini response: " + data.insights);
+      } catch (err) {
+        alert("Error contacting backend");
+        console.error(err);
+      }
+    });
+  }
+
   return (
     <div style={{ padding: "1rem" }}>
       <h2>PreGrade</h2>
