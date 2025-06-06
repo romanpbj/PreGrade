@@ -1,14 +1,22 @@
 import { useState } from "react";
 import axios from "axios";
+import { useAuth } from './hooks/UseAuth.js';
+import AuthComponent from './components/AuthComponent.jsx';
+import UserHeader from './components/UserHeader.jsx';
+import { saveGradingResult } from './firebase/database.js';
 
 function App() {
   const [file, setFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState("");
+  const [showAuth, setShowAuth] = useState(false);
+  
+  const { user, loading: authLoading, handleLogout, getAuthHeaders, getFormDataHeaders } = useAuth();
 
+  // File handlers
   function handleChange(e) {
     setFile(e.target.files[0]);
-    setResponse(""); // Clear previous response
+    setResponse("");
   }
 
   async function handleSubmit(e) {
@@ -20,15 +28,10 @@ function App() {
     formData.append("file", file);
     
     try {
-      const res = await axios.post("http://localhost:3001/api/upload", formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      
+      const headers = await getFormDataHeaders();
+      const res = await axios.post("http://localhost:3001/api/upload", formData, { headers });
       setResponse(res.data.insights);
       alert("File uploaded and processed successfully!");
-      
     } catch (err) {
       console.error(err);
       alert("Upload failed: " + (err.response?.data?.error || err.message));
@@ -50,11 +53,23 @@ function App() {
         }
         
         try {
+          const headers = await getAuthHeaders();
           const res = await axios.post("http://localhost:3001/api/bodytext", {
             assignmentText: response.assignmentText
-          });
+          }, { headers });
           
           setResponse(res.data.insights);
+          
+          // Save grading result to Firebase if user is authenticated
+          if (user) {
+            await saveGradingResult(user.uid, null, {
+              assignmentText: response.assignmentText,
+              gradingResult: res.data.insights,
+              source: 'canvas_page',
+              timestamp: new Date().toISOString()
+            });
+          }
+          
           alert("Assignment graded successfully!");
           
         } catch (err) {
@@ -80,13 +95,20 @@ function App() {
     formData.append("file", file);
     
     try {
-      const res = await axios.post("http://localhost:3001/api/grade", formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      
+      const headers = await getFormDataHeaders();
+      const res = await axios.post("http://localhost:3001/api/grade", formData, { headers });
       setResponse(res.data.insights);
+      
+      // Save grading result to Firebase if user is authenticated
+      if (user) {
+        await saveGradingResult(user.uid, null, {
+          fileName: file.name,
+          gradingResult: res.data.insights,
+          source: 'file_upload',
+          timestamp: new Date().toISOString()
+        });
+      }
+      
       alert(`File "${res.data.filename}" graded successfully!`);
       
     } catch (err) {
@@ -97,10 +119,36 @@ function App() {
     }
   }
 
+  const handleAuthSuccess = (user) => {
+    setShowAuth(false);
+    alert(`Welcome ${user.displayName || user.email}!`);
+  };
+
+  if (authLoading) {
+    return (
+      <div style={{ padding: "1rem", textAlign: "center", minWidth: "400px" }}>
+        <div>Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ padding: "1rem", minWidth: "400px" }}>
-      <h2>PreGrade</h2>
-      
+      <UserHeader 
+        user={user}
+        onShowAuth={() => setShowAuth(!showAuth)}
+        onLogout={handleLogout}
+        showAuth={showAuth}
+      />
+
+      {/* Authentication Component */}
+      {showAuth && !user && (
+        <AuthComponent 
+          onAuthSuccess={handleAuthSuccess}
+          onCancel={() => setShowAuth(false)}
+        />
+      )}
+
       {/* File Upload Section */}
       <div style={{ marginBottom: "1rem", padding: "1rem", border: "1px solid #ccc", borderRadius: "5px" }}>
         <h3>Upload Assignment File</h3>
@@ -140,9 +188,16 @@ function App() {
         </button>
       </div>
 
+      {/* User Status */}
+      {user && (
+        <div style={{ marginBottom: "1rem", padding: "10px", backgroundColor: "#e8f5e8", borderRadius: "5px", fontSize: "12px" }}>
+          ✓ Signed in - Your grading results are being saved to your account
+        </div>
+      )}
+
       {/* Response Section */}
       {response && (
-        <div style={{ marginTop: "1rem", padding: "1rem", backgroundColor: "#black", borderRadius: "5px" }}>
+        <div style={{ marginTop: "1rem", padding: "1rem", backgroundColor: "#f5f5f5", borderRadius: "5px" }}>
           <h3>PreGrade Response:</h3>
           <div style={{ whiteSpace: "pre-wrap", fontSize: "14px", lineHeight: "1.4" }}>
             {response}
