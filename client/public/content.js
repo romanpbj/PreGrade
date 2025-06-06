@@ -61,7 +61,7 @@ function injectSidebar() {
       height: 100%;
       width: 420px;
       z-index: 9999;
-      background-color: #1e1e1e;
+      background-color:rgb(104, 104, 204);
       box-shadow: -2px 0 10px rgba(0,0,0,0.3);
       overflow-y: auto;
     `;

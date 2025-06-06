@@ -17,7 +17,7 @@ const UserHeader = ({ user, onShowAuth, onLogout, showAuth }) => {
         padding: "10px 0",
         borderBottom: "1px solid #eee"
       }}>
-        <h2 style={{ margin: 0, color: "#333" }}>PreGrade</h2>
+        <h2 style={{ margin: 0, color: "#fff" }}>PreGrade</h2>
         
         {user ? (
           <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>

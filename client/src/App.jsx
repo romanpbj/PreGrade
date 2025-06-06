@@ -175,7 +175,7 @@ async function gradeWithFile() {
       )}
 
       {/* File Upload Section */}
-      <div style={{ marginBottom: "1rem", padding: "1rem", border: "1px solid #ccc", borderRadius: "5px" }}>
+      <div style={{ marginBottom: "1rem", padding: "1rem", border: "1px solid #ccc", borderRadius: "5px", backgroundColor: "#fff"}}>
         <h3>Upload Assignment File</h3>
         <form onSubmit={handleSubmit}>
           <input 
@@ -206,7 +206,7 @@ async function gradeWithFile() {
       </div>
 
       {/* Page Text Section */}
-      <div style={{ marginBottom: "1rem", padding: "1rem", border: "1px solid #ccc", borderRadius: "5px" }}>
+      <div style={{ marginBottom: "1rem", padding: "1rem", border: "1px solid #ccc", borderRadius: "5px", backgroundColor: "#fff" }}>
         <h3>Grade Text from Page</h3>
         <button onClick={testAssignmentGrading} disabled={isLoading}>
           {isLoading ? "Processing..." : "Grade Assignment from Canvas"}

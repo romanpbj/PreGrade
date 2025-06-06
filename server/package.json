@@ -13,11 +13,14 @@
   "dependencies": {
     "@google/genai": "^1.4.0",
     "@google/generative-ai": "^0.24.1",
+    "@napi-rs/canvas": "^0.1.70",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "multer": "^2.0.1",
     "npm": "^11.4.1",
     "openai": "^5.1.1",
-    "pdfjs-dist": "^5.3.31"
+    "pdfjs-dist": "^5.3.31",
+    "streamsearch": "^1.1.0"
   }
 }
