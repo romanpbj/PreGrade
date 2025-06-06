@@ -185,14 +185,10 @@ async function gradeWithFile() {
             style={{ marginBottom: "10px" }}
           />
           <div>
-            <button type="submit" disabled={isLoading || !file}>
-              {isLoading ? "Processing..." : "Upload & Analyze"}
-            </button>
             <button 
               type="button" 
               onClick={gradeWithFile} 
               disabled={isLoading || !file}
-              style={{ marginLeft: "10px" }}
             >
               {isLoading ? "Grading..." : "Grade File"}
             </button>
@@ -204,15 +200,6 @@ async function gradeWithFile() {
           </p>
         )}
       </div>
-
-      {/* Page Text Section */}
-      <div style={{ marginBottom: "1rem", padding: "1rem", border: "1px solid #ccc", borderRadius: "5px", backgroundColor: "#fff" }}>
-        <h3>Grade Text from Page</h3>
-        <button onClick={testAssignmentGrading} disabled={isLoading}>
-          {isLoading ? "Processing..." : "Grade Assignment from Canvas"}
-        </button>
-      </div>
-
       {/* User Status */}
       {user && (
         <div style={{ marginBottom: "1rem", padding: "10px", backgroundColor: "#e8f5e8", borderRadius: "5px", fontSize: "12px" }}>

@@ -22,10 +22,10 @@ const UserHeader = ({ user, onShowAuth, onLogout, showAuth }) => {
         {user ? (
           <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
             <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: "14px", fontWeight: "bold", color: "#333" }}>
+              <div style={{ fontSize: "14px", fontWeight: "bold", color: "#fff" }}>
                 {user.displayName || 'User'}
               </div>
-              <div style={{ fontSize: "12px", color: "#666" }}>
+              <div style={{ fontSize: "12px", color: "#fff" }}>
                 {user.email}
               </div>
             </div>
