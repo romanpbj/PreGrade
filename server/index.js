@@ -1,20 +1,37 @@
-import express from 'express'
-import cors from 'cors'
-import dotenv from "dotenv"
-import { OpenAI } from 'openai'
-
+import express from 'express';
+import cors from 'cors';
+import dotenv from "dotenv";
+import multer from 'multer';
+import { OpenAI } from 'openai';
+import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
 
 dotenv.config();
 
 const openai = new OpenAI({
-    apiKey: process.env.API_KEY,
-})
+  apiKey: process.env.API_KEY,
+});
 
-const app = express()
-const PORT = 3001
+const app = express();
+const PORT = 3001;
 
-app.use(cors())
-app.use(express.json())
+app.use(cors());
+app.use(express.json());
+
+const upload = multer({ storage: multer.memoryStorage() });
+
+async function extractTextFromPdf(buffer) {
+  const pdf = await getDocument({ data: new Uint8Array(buffer) }).promise;
+  let fullText = '';
+
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const strings = content.items.map(item => item.str);
+    fullText += strings.join(' ') + '\n\n';
+  }
+
+  return fullText;
+}
 
 app.get('/', (req, res) => {
   res.send("Backend is up");
@@ -60,26 +77,25 @@ app.post("/api/grade", upload.single("file"), async (req, res) => {
   }
 });
 
-app.post('/api/bodytext', verifyFirebaseToken, async (req, res) => {
+app.post('/api/bodytext', async (req, res) => {
   const { assignmentText } = req.body;
-  const userId = req.user?.uid;
 
   if (!assignmentText) {
     return res.status(400).json({ error: "Missing assignmentText" });
   }
 
   try {
-    const completetion = await openai.chat.completions.create({ 
-        model: "gpt-4",
-        messages: [
-            { role: "system", content: "You are a helpful assistant that generates insights from text." },
-            { role: "user", content: `Generate insights from the following text: ${assignmentText}` }
-        ],
-        temperature: 0.7,
-        max_tokens: 500,
-     });
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        { role: "system", content: "You are a helpful assistant that generates insights from text." },
+        { role: "user", content: `Generate insights from the following text: ${assignmentText}` }
+      ],
+      temperature: 0.7,
+      max_tokens: 500,
+    });
 
-    const aiResponse = completetion.choices[0].message.content;
+    const aiResponse = completion.choices[0].message.content;
     res.json({ insights: aiResponse });
   } catch (error) {
     console.error("Error generating text with OpenAI:", error);
@@ -87,31 +103,12 @@ app.post('/api/bodytext', verifyFirebaseToken, async (req, res) => {
   }
 });
 
-// New endpoint for file upload (you can implement this similarly)
-app.post('/api/upload', verifyFirebaseToken, async (req, res) => {
-  const userId = req.user?.uid;
-  
-  // Your file upload logic here
-  // For now, just return a placeholder
+app.post('/api/upload', async (req, res) => {
   res.json({ 
-    insights: "File upload endpoint - implement your file processing logic here",
-    userId: userId || null
-  });
-});
-
-// New endpoint for grading files
-app.post('/api/grade', verifyFirebaseToken, async (req, res) => {
-  const userId = req.user?.uid;
-  
-  // Your file grading logic here
-  // For now, just return a placeholder
-  res.json({ 
-    insights: "File grading endpoint - implement your file grading logic here",
-    filename: "uploaded_file.pdf",
-    userId: userId || null
+    insights: "File upload endpoint - implement your file processing logic here"
   });
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(` Server is running on http://localhost:${PORT}`);
 });
