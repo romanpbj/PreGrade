@@ -2,16 +2,9 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from "dotenv"
 import { OpenAI } from 'openai'
-import admin from 'firebase-admin'
+
 
 dotenv.config();
-
-if (process.env.FIREBASE_SERVICE_ACCOUNT_PATH) {
-  admin.initializeApp({
-    credential: admin.credential.cert(process.env.FIREBASE_SERVICE_ACCOUNT_PATH),
-    projectId: process.env.FIREBASE_PROJECT_ID
-  });
-}
 
 const openai = new OpenAI({
     apiKey: process.env.API_KEY,
@@ -23,31 +16,48 @@ const PORT = 3001
 app.use(cors())
 app.use(express.json())
 
-// Middleware to verify Firebase token (optional)
-const verifyFirebaseToken = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    // Allow requests without auth for backwards compatibility
-    req.user = null;
-    return next();
-  }
-
-  const token = authHeader.split('Bearer ')[1];
-  
-  try {
-    const decodedToken = await admin.auth().verifyIdToken(token);
-    req.user = decodedToken;
-    next();
-  } catch (error) {
-    console.error('Error verifying Firebase token:', error);
-    req.user = null;
-    next(); // Continue without auth for now
-  }
-};
-
 app.get('/', (req, res) => {
-    res.send("Backend is up")
+  res.send("Backend is up");
+});
+
+app.post("/api/grade", upload.single("file"), async (req, res) => {
+  const { assignmentText } = req.body;
+  const fileBuffer = req.file?.buffer;
+
+  if (!fileBuffer || !assignmentText) {
+    return res.status(400).json({ error: "Missing file or assignmentText" });
+  }
+
+  let fileText = '';
+  try {
+    fileText = await extractTextFromPdf(fileBuffer);
+  } catch (err) {
+    console.error("PDF parse error:", err);
+    return res.status(500).json({ error: "Failed to parse PDF" });
+  }
+
+  if (!fileText.trim()) {
+    return res.status(400).json({ error: "No readable text found in the PDF." });
+  }
+
+  const prompt = `Grade the following assignment:\n\nAssignment Instructions:\n${assignmentText}\n\nStudent Submission:\n${fileText}`;
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        { role: "system", content: "You are an AI teaching assistant. Grade the student's response." },
+        { role: "user", content: prompt }
+      ],
+      max_tokens: 800,
+    });
+
+    const insights = completion.choices[0].message.content;
+    res.json({ insights, filename: req.file.originalname });
+  } catch (error) {
+    console.error("OpenAI error:", error);
+    res.status(500).json({ error: "Failed to generate AI feedback" });
+  }
 });
 
 app.post('/api/bodytext', verifyFirebaseToken, async (req, res) => {
@@ -59,7 +69,7 @@ app.post('/api/bodytext', verifyFirebaseToken, async (req, res) => {
   }
 
   try {
-    const completion = await openai.chat.completions.create({ 
+    const completetion = await openai.chat.completions.create({ 
         model: "gpt-4",
         messages: [
             { role: "system", content: "You are a helpful assistant that generates insights from text." },
@@ -69,17 +79,8 @@ app.post('/api/bodytext', verifyFirebaseToken, async (req, res) => {
         max_tokens: 500,
      });
 
-    const aiResponse = completion.choices[0].message.content;
-    
-    // Log usage if user is authenticated
-    if (userId) {
-      console.log(`Grading request from user: ${userId}`);
-    }
-    
-    res.json({ 
-      insights: aiResponse,
-      userId: userId || null 
-    });
+    const aiResponse = completetion.choices[0].message.content;
+    res.json({ insights: aiResponse });
   } catch (error) {
     console.error("Error generating text with OpenAI:", error);
     res.status(500).json({ error: "Failed to generate text" });
@@ -112,5 +113,5 @@ app.post('/api/grade', verifyFirebaseToken, async (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
