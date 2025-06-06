@@ -2,7 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from "dotenv"
 import { OpenAI } from 'openai'
-import PdfParse from 'pdf-parse'
+import pdfParse from 'pdf-parse'
 
 dotenv.config();
 
@@ -20,7 +20,7 @@ app.get('/', (req, res) => {
     res.send("Backend is up")
 });
 
-router.post("/api/grade", upload.single("file"), async (req, res) => {
+app.post("/api/grade", upload.single("file"), async (req, res) => {
   const { assignmentText } = req.body;
   const fileBuffer = req.file?.buffer;
 
@@ -36,7 +36,11 @@ router.post("/api/grade", upload.single("file"), async (req, res) => {
     return res.status(500).json({ error: "Failed to parse PDF" });
   }
 
-  const prompt = `Grade the following assignment:\n\nAssignment Instructions: ${assignmentText}\n\nStudent Submission:\n${fileText}`;
+  if (!fileText.trim()) {
+    return res.status(400).json({ error: "No readable text found in the PDF. It might be scanned or handwritten." });
+  }
+
+  const prompt = `Grade the following assignment:\n\nAssignment Instructions:\n${assignmentText}\n\nStudent Submission:\n${fileText}`;
 
   try {
     const completion = await openai.chat.completions.create({
@@ -49,8 +53,9 @@ router.post("/api/grade", upload.single("file"), async (req, res) => {
     });
 
     const insights = completion.choices[0].message.content;
-    res.json({ insights });
+    res.json({ insights, filename: req.file.originalname });
   } catch (error) {
+    console.error("OpenAI error:", error);
     res.status(500).json({ error: "Failed to generate AI feedback" });
   }
 });
