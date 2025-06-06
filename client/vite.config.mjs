@@ -6,9 +6,17 @@ export default defineConfig({
   plugins: [react()],
   build: {
     outDir: 'dist',
+    emptyOutDir: true,
     rollupOptions: {
       input: {
-        popup: resolve(__dirname, 'popup.html')
+        popup: resolve(__dirname, 'popup.html'),
+        panelLoader: resolve(__dirname, 'panel-loader.jsx'),
+      },
+      output: {
+        entryFileNames: (chunk) => {
+          if (chunk.name === 'panelLoader') return 'assets/panelLoader.js';
+          return 'assets/[name]-[hash].js';
+        }
       }
     }
   }

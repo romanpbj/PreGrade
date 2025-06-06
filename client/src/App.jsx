@@ -87,37 +87,62 @@ function App() {
     }
   }
 
-  async function gradeWithFile() {
-    if (!file) return alert("Please select a file first.");
-    
-    setIsLoading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-    
-    try {
-      const headers = await getFormDataHeaders();
-      const res = await axios.post("http://localhost:3001/api/grade", formData, { headers });
-      setResponse(res.data.insights);
-      
-      // Save grading result to Firebase if user is authenticated
-      if (user) {
-        await saveGradingResult(user.uid, null, {
-          fileName: file.name,
-          gradingResult: res.data.insights,
-          source: 'file_upload',
-          timestamp: new Date().toISOString()
-        });
+async function gradeWithFile() {
+  if (!file) return alert("Please select a file first.");
+  setIsLoading(true);
+
+  try {
+    // Send message to content script to scrape text
+    window.postMessage({ type: "SCRAPE_TEXT_REQUEST" }, "*");
+
+    // Listen for response
+    const handleResponse = async (event) => {
+      if (event.source !== window || event.data?.type !== "SCRAPE_TEXT_RESPONSE") return;
+      window.removeEventListener("message", handleResponse); // cleanup
+
+      const assignmentText = event.data.assignmentText;
+
+      if (!assignmentText) {
+        setIsLoading(false);
+        return alert("Failed to get assignment text.");
       }
-      
-      alert(`File "${res.data.filename}" graded successfully!`);
-      
-    } catch (err) {
-      console.error(err);
-      alert("Grading failed: " + (err.response?.data?.error || err.message));
-    } finally {
-      setIsLoading(false);
-    }
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("assignmentText", assignmentText);
+
+      try {
+        const headers = await getFormDataHeaders();
+        const res = await axios.post("http://localhost:3001/api/grade", formData, { headers });
+
+        setResponse(res.data.insights);
+
+        if (user) {
+          await saveGradingResult(user.uid, null, {
+            fileName: file.name,
+            assignmentText,
+            gradingResult: res.data.insights,
+            source: "file_upload_with_canvas_text",
+            timestamp: new Date().toISOString(),
+          });
+        }
+
+        alert(`File "${res.data.filename}" graded successfully!`);
+      } catch (err) {
+        console.error(err);
+        alert("Grading failed: " + (err.response?.data?.error || err.message));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    window.addEventListener("message", handleResponse);
+  } catch (err) {
+    console.error(err);
+    setIsLoading(false);
+    alert("Unexpected error contacting content script.");
   }
+}
 
   const handleAuthSuccess = (user) => {
     setShowAuth(false);
