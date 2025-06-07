@@ -3,17 +3,16 @@ import axios from "axios";
 import { useAuth } from './hooks/UseAuth.js';
 import AuthComponent from './components/AuthComponent.jsx';
 import UserHeader from './components/UserHeader.jsx';
-import { saveGradingResult } from './firebase/database.js';
+import CoursesList from './components/CoursesList.jsx';
 
 function App() {
   const [file, setFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState("");
   const [showAuth, setShowAuth] = useState(false);
-  
+  const [selectedCourseId, setSelectedCourseId] = useState(null);
   const { user, loading: authLoading, handleLogout, getAuthHeaders, getFormDataHeaders } = useAuth();
 
-  // File handlers
   function handleChange(e) {
     setFile(e.target.files[0]);
     setResponse("");
@@ -60,7 +59,6 @@ function App() {
           
           setResponse(res.data.insights);
           
-          // Save grading result to Firebase if user is authenticated
           if (user) {
             await saveGradingResult(user.uid, null, {
               assignmentText: response.assignmentText,
@@ -117,14 +115,16 @@ async function gradeWithFile() {
 
         setResponse(res.data.insights);
 
-        if (user) {
-          await saveGradingResult(user.uid, null, {
-            fileName: file.name,
-            assignmentText,
-            gradingResult: res.data.insights,
-            source: "file_upload_with_canvas_text",
-            timestamp: new Date().toISOString(),
-          });
+        if (user && selectedCourseId) {
+          await saveAssignment(
+            user.uid,
+            selectedCourseId,
+            file.name,
+            file,
+            res.data.insights
+          );
+        } else if (user && !selectedCourseId) {
+          alert("Please select a course before grading.");
         }
 
         alert(`File "${res.data.filename}" graded successfully!`);
@@ -173,7 +173,14 @@ async function gradeWithFile() {
           onCancel={() => setShowAuth(false)}
         />
       )}
-
+      {/* Courses List */}
+      {user && (
+        <CoursesList 
+          userId={user.uid} 
+          selectedCourseId={selectedCourseId} 
+          onSelectCourse={setSelectedCourseId} 
+        />
+      )}
       {/* File Upload Section */}
       <div style={{ marginBottom: "1rem", padding: "1rem", border: "1px solid #ccc", borderRadius: "5px", backgroundColor: "#fff"}}>
         <h3>Upload Assignment File</h3>

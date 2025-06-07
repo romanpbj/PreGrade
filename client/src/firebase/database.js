@@ -1,6 +1,6 @@
-import { db } from './config.js'; 
-import { doc, setDoc } from 'firebase/firestore';
-import { ref, set } from 'firebase/database';
+import { db, storage } from './config.js';
+import { doc, setDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'; 
 
 export async function createUserProfile(userId, profileData) {
   try {
@@ -11,10 +11,34 @@ export async function createUserProfile(userId, profileData) {
   }
 }
 
-export function saveGradingResult(userId, gradingResult) {
+export async function createCourse(userId, courseName) {
   try {
-    const gradingRef = ref(db, `gradingResults/${userId}`);
-    set(gradingRef, gradingResult);
+    const courseRef = collection(db, 'users', userId, 'courses');
+    await addDoc(courseRef, {
+      courseName,
+      createdAt: serverTimestamp(),
+    });
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// Save assignment with file upload + grading result
+export async function saveAssignment(userId, courseId, assignmentName, file, gradingResult) {
+  try {
+    const storageRef = ref(storage, `users/${userId}/courses/${courseId}/assignments/${file.name}`);
+    const snapshot = await uploadBytes(storageRef, file);
+    const fileUrl = await getDownloadURL(snapshot.ref);
+
+    const assignmentRef = collection(db, 'users', userId, 'courses', courseId, 'assignments');
+    await addDoc(assignmentRef, {
+      assignmentName,
+      fileUrl,
+      gradingResult,
+      timestamp: serverTimestamp(),
+    });
+
     return { success: true };
   } catch (error) {
     return { success: false, error: error.message };
