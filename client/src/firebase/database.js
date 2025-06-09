@@ -1,6 +1,7 @@
 import { db, storage } from './config.js';
 import { doc, setDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'; 
+import { deleteDoc } from 'firebase/firestore';
 
 export async function createUserProfile(userId, profileData) {
   try {
@@ -18,6 +19,15 @@ export async function createCourse(userId, courseName) {
       courseName,
       createdAt: serverTimestamp(),
     });
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteCourse(userId, courseId) {
+  try {
+    await deleteDoc(doc(db, 'users', userId, 'courses', courseId));
     return { success: true };
   } catch (error) {
     return { success: false, error: error.message };
