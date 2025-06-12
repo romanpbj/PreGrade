@@ -7,6 +7,10 @@ const UserHeader = ({ user, onShowAuth, onLogout, showAuth }) => {
         alert('Logout failed: ' + result.error);
       }
     };
+
+    const handleClosePanel = () => {
+      window.postMessage({ type: "CLOSE_PREGRADE_PANEL" }, "*");
+    };
   
     return (
       <div style={{ 
@@ -18,48 +22,59 @@ const UserHeader = ({ user, onShowAuth, onLogout, showAuth }) => {
         borderBottom: "1px solid #eee"
       }}>
         <h2 style={{ margin: 0, color: "#fff" }}>PreGrade</h2>
-        
-        {user ? (
-          <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-            <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: "14px", fontWeight: "bold", color: "#fff" }}>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          {user ? (
+            <>
+              <div style={{ textAlign: "right", color: "#fff", fontSize: "14px", fontWeight: "bold", marginTop: "3px" }}>
                 {user.displayName || 'User'}
               </div>
-              <div style={{ fontSize: "12px", color: "#fff" }}>
-                {user.email}
-              </div>
-            </div>
+              <button 
+                onClick={handleLogout}
+                style={{ 
+                  fontSize: "12px", 
+                  padding: "6px 12px",
+                  backgroundColor: "#d32f2f",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer"
+                }}
+              >
+                Logout
+              </button>
+            </>
+          ) : (
             <button 
-              onClick={handleLogout}
+              onClick={onShowAuth}
               style={{ 
-                fontSize: "12px", 
-                padding: "6px 12px",
-                backgroundColor: "#d32f2f",
+                fontSize: "14px", 
+                padding: "6px 10px",
+                backgroundColor: "#007cba",
                 color: "white",
                 border: "none",
                 borderRadius: "4px",
                 cursor: "pointer"
               }}
             >
-              Logout
+              {showAuth ? 'Cancel' : 'Sign In'}
             </button>
-          </div>
-        ) : (
+          )}
+
           <button 
-            onClick={onShowAuth}
+            onClick={handleClosePanel} 
             style={{ 
-              fontSize: "14px", 
-              padding: "8px 16px",
-              backgroundColor: "#007cba",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer"
+              background: "gray", 
+              color: "white", 
+              border: "none", 
+              borderRadius: "4px", 
+              padding: "6px 10px", 
+              cursor: "pointer" 
             }}
           >
-            {showAuth ? 'Cancel' : 'Sign In'}
+            ✕
           </button>
-        )}
+        </div>
       </div>
     );
   };

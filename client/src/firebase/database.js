@@ -34,7 +34,6 @@ export async function deleteCourse(userId, courseId) {
   }
 }
 
-// Save assignment with file upload + grading result
 export async function saveAssignment(userId, courseId, assignmentName, file, gradingResult) {
   try {
     const storageRef = ref(storage, `users/${userId}/courses/${courseId}/assignments/${file.name}`);
@@ -49,6 +48,20 @@ export async function saveAssignment(userId, courseId, assignmentName, file, gra
       timestamp: serverTimestamp(),
     });
 
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function saveGradingResultToCourse(userId, courseId, assignmentName, gradingResult){
+  try {
+    const ref = collection(db, 'users', userId, 'courses', courseId, 'responses');
+    await addDoc(ref, {
+      assignmentName,
+      gradingResult,
+      timestamp: serverTimestamp(),
+    });
     return { success: true };
   } catch (error) {
     return { success: false, error: error.message };

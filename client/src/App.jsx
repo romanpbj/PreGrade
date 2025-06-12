@@ -6,6 +6,8 @@ import UserHeader from './components/UserHeader.jsx';
 import CoursesList from './components/CoursesList.jsx';
 import { db } from './firebase/config.js';
 import { collection, onSnapshot } from 'firebase/firestore';
+import { saveGradingResultToCourse } from './firebase/database.js';
+import './styles/App.css';
 
 function App() {
   const [gradePanel, setGradePanel] = useState(true);
@@ -17,6 +19,27 @@ function App() {
   const [showAuth, setShowAuth] = useState(false);
   const [gradeCourseId, setGradeCourseId] = useState(null);
   const { user, loading: authLoading, handleLogout, getAuthHeaders, getFormDataHeaders } = useAuth();
+
+  const navBtnsStyle = {
+    display: "flex",
+    justifyContent: "left",
+    gap: "10px",
+    marginTop: "1rem",
+    marginBottom: "1rem",
+  };
+
+  const buttonStyle = {
+    padding: "0.5rem 1rem",
+    border: "none",
+    borderRadius: "4px",
+    backgroundColor: "#fff",
+    color: "#000",
+    cursor: "pointer",
+  };
+
+  const handleClosePanel = () => {
+    window.postMessage({ type: "CLOSE_PREGRADE_PANEL" }, "*");
+  };
 
   useEffect(() => {
     if (!user || !user.uid) {
@@ -44,49 +67,62 @@ function App() {
   }
 
   async function gradeWithFile() {
-    if (!file) return alert("Please select a file first.");
-    if (!gradeCourseId) return alert("Please select a course.");
-    setIsLoading(true);
+  if (!file) return alert("Please select a file first.");
+  if (!gradeCourseId) return alert("Please select a course.");
+  setIsLoading(true);
 
-    try {
-      window.postMessage({ type: "SCRAPE_TEXT_REQUEST" }, "*");
+  try {
+    window.postMessage({ type: "SCRAPE_TEXT_REQUEST" }, "*");
 
-      const handleResponse = async (event) => {
-        if (event.source !== window || event.data?.type !== "SCRAPE_TEXT_RESPONSE") return;
-        window.removeEventListener("message", handleResponse);
+    const handleResponse = async (event) => {
+      if (event.source !== window || event.data?.type !== "SCRAPE_TEXT_RESPONSE") return;
+      window.removeEventListener("message", handleResponse);
 
-        const assignmentText = event.data.assignmentText;
+      const assignmentText = event.data.assignmentText;
+      if (!assignmentText) {
+        setIsLoading(false);
+        return alert("Failed to get assignment text.");
+      }
 
-        if (!assignmentText) {
-          setIsLoading(false);
-          return alert("Failed to get assignment text.");
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("assignmentText", assignmentText);
+
+      try {
+        const headers = await getFormDataHeaders();
+        const res = await axios.post("http://localhost:3001/api/grade", formData, { headers });
+
+        const gradingResult = res.data.insights;
+        setResponse(gradingResult);
+
+        const result = await saveGradingResultToCourse(
+          user.uid,
+          gradeCourseId,
+          file.name,
+          gradingResult
+        );
+
+        if (!result.success) {
+          alert("Failed to save grading result: " + result.error);
+          return;
         }
 
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("assignmentText", assignmentText);
+        alert(`File "${res.data.filename}" graded and saved successfully!`);
+      } catch (err) {
+        console.error(err);
+        alert("Grading failed: " + (err.response?.data?.error || err.message));
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-        try {
-          const headers = await getFormDataHeaders();
-          const res = await axios.post("http://localhost:3001/api/grade", formData, { headers });
-
-          setResponse(res.data.insights);
-          alert(`File "${res.data.filename}" graded successfully!`);
-        } catch (err) {
-          console.error(err);
-          alert("Grading failed: " + (err.response?.data?.error || err.message));
-        } finally {
-          setIsLoading(false);
-        }
-      };
-
-      window.addEventListener("message", handleResponse);
-    } catch (err) {
-      console.error(err);
-      setIsLoading(false);
-      alert("Unexpected error contacting content script.");
-    }
+    window.addEventListener("message", handleResponse);
+  } catch (err) {
+    console.error(err);
+    setIsLoading(false);
+    alert("Unexpected error contacting content script.");
   }
+}
 
   const handleAuthSuccess = (user) => {
     setShowAuth(false);
@@ -118,9 +154,9 @@ function App() {
       )}
 
       {!showAuth && (
-        <div>
-          <button onClick={() => { setCoursePanel(false); setGradePanel(true); }}>Grade</button>
-          {user && <button onClick={() => { setCoursePanel(true); setGradePanel(false); }}>Courses</button>}
+        <div style={navBtnsStyle}>
+          <button style={buttonStyle} onClick={() => { setCoursePanel(false); setGradePanel(true); }}>Grade</button>
+          {user && <button style={buttonStyle} onClick={() => { setCoursePanel(true); setGradePanel(false); }}>Courses</button>}
         </div>
       )}
 
