@@ -54,10 +54,10 @@ export async function saveAssignment(userId, courseId, assignmentName, file, gra
   }
 }
 
-export async function saveGradingResultToCourse(userId, courseId, assignmentName, gradingResult){
+export async function saveGradingResultToCourse(userId, courseId, assignmentName, gradingResult) {
   try {
-    const ref = collection(db, 'users', userId, 'courses', courseId, 'responses');
-    await addDoc(ref, {
+    const gradingResultsRef = collection(db, 'users', userId, 'courses', courseId, 'gradingResults');
+    await addDoc(gradingResultsRef, {
       assignmentName,
       gradingResult,
       timestamp: serverTimestamp(),
