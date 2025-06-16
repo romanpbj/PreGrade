@@ -33,10 +33,6 @@ async function extractTextFromPdf(buffer) {
   return fullText;
 }
 
-app.get('/', (req, res) => {
-  res.send("Backend is up");
-});
-
 app.post("/api/grade", upload.single("file"), async (req, res) => {
   const { assignmentText } = req.body;
   const fileBuffer = req.file?.buffer;
@@ -57,7 +53,10 @@ app.post("/api/grade", upload.single("file"), async (req, res) => {
     return res.status(400).json({ error: "No readable text found in the PDF." });
   }
 
-  const prompt = `Grade the following assignment:\n\nAssignment Instructions:\n${assignmentText}\n\nStudent Submission:\n${fileText}`;
+  const prompt = `Grade the following assignment and at the very start of your response, output the score like this:\n` +
+                 `"PreGraded Score: X/60"\n\n` +
+                 `Assignment Instructions:\n${assignmentText}\n\n` +
+                 `Student Submission:\n${fileText}`;
 
   try {
     const completion = await openai.chat.completions.create({
@@ -69,8 +68,18 @@ app.post("/api/grade", upload.single("file"), async (req, res) => {
       max_tokens: 800,
     });
 
-    const insights = completion.choices[0].message.content;
-    res.json({ insights, filename: req.file.originalname });
+    const fullText = completion.choices[0].message.content;
+
+    const scoreMatch = fullText.match(/^PreGraded Score:\s*(\d+\/\d+)/m);
+    const preGradedScore = scoreMatch ? scoreMatch[1] : null;
+
+    const feedback = fullText.replace(/^PreGraded Score:.*(\r?\n)?/m, "").trim();
+
+    res.json({
+      filename: req.file.originalname,
+      preGradedScore,
+      feedback
+    });
   } catch (error) {
     console.error("OpenAI error:", error);
     res.status(500).json({ error: "Failed to generate AI feedback" });

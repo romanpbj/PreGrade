@@ -32,9 +32,9 @@ const UserHeader = ({ user, onShowAuth, onLogout, showAuth }) => {
               <button 
                 onClick={handleLogout}
                 style={{ 
-                  fontSize: "12px", 
+                  fontSize: "14px", 
                   padding: "6px 12px",
-                  backgroundColor: "#d32f2f",
+                  backgroundColor: "#0267ab",
                   color: "white",
                   border: "none",
                   borderRadius: "4px",
@@ -47,15 +47,15 @@ const UserHeader = ({ user, onShowAuth, onLogout, showAuth }) => {
           ) : (
             <button 
               onClick={onShowAuth}
-              style={{ 
-                fontSize: "14px", 
-                padding: "6px 10px",
-                backgroundColor: "#007cba",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer"
-              }}
+                style={{ 
+                  fontSize: "14px", 
+                  padding: "6px 12px",
+                  backgroundColor: "#0267ab",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer"
+                }}
             >
               {showAuth ? 'Cancel' : 'Sign In'}
             </button>
@@ -64,10 +64,11 @@ const UserHeader = ({ user, onShowAuth, onLogout, showAuth }) => {
           <button 
             onClick={handleClosePanel} 
             style={{ 
-              background: "gray", 
+              backgroundColor: "#0267ab",
               color: "white", 
               border: "none", 
-              borderRadius: "4px", 
+              borderRadius: "4px",
+              fontSize: "14px",
               padding: "6px 10px", 
               cursor: "pointer" 
             }}

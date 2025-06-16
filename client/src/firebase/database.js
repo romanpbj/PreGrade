@@ -67,3 +67,13 @@ export async function saveGradingResultToCourse(userId, courseId, assignmentName
     return { success: false, error: error.message };
   }
 }
+
+export async function deleteGradedResult(userId, courseId, resultId) {
+  try {
+    const ref = doc(db, 'users', userId, 'courses', courseId, 'gradingResults', resultId);
+    await deleteDoc(ref);
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}

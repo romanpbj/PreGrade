@@ -15,6 +15,7 @@ function App() {
   const [courses, setCourses] = useState([]);
   const [file, setFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [grade, setGrade] = useState("")
   const [response, setResponse] = useState("");
   const [showAuth, setShowAuth] = useState(false);
   const [gradeCourseId, setGradeCourseId] = useState(null);
@@ -67,8 +68,8 @@ function App() {
   }
 
   async function gradeWithFile() {
-  if (!file) return alert("Please select a file first.");
-  if (!gradeCourseId) return alert("Please select a course.");
+  if (!file) return alert("Please select a file.");
+  if (!gradeCourseId && user) return alert("Please select a course.");
   setIsLoading(true);
 
   try {
@@ -92,15 +93,23 @@ function App() {
         const headers = await getFormDataHeaders();
         const res = await axios.post("http://localhost:3001/api/grade", formData, { headers });
 
-        const gradingResult = res.data.insights;
-        setResponse(gradingResult);
+        const feedback = res.data.feedback;
+        const score = res.data.preGradedScore
+        setResponse(feedback)
+        setGrade(score)
+        const gradingResult = {
+          feedback,
+          score
+        };
 
-        const result = await saveGradingResultToCourse(
-          user.uid,
-          gradeCourseId,
-          file.name,
-          gradingResult
-        );
+        if (!feedback || !score) {
+          console.error("Invalid grading result or pre-graded score:", gradingResult, preGrade);
+          alert("Grading failed: Incomplete response from AI.");
+          setIsLoading(false);
+          return;
+        }
+
+        const result = await saveGradingResultToCourse(user.uid, gradeCourseId, file.name, gradingResult);
 
         if (!result.success) {
           alert("Failed to save grading result: " + result.error);
@@ -169,7 +178,7 @@ function App() {
           {!user ? (
             <h3>Sign in for course specific grading</h3>
           ) : courses.length ? (
-            <h3>Select Course</h3>
+            <h3>Select course</h3>
           ) : (
             <h3>You have no courses</h3>
           )}
@@ -181,8 +190,8 @@ function App() {
                 style={{
                   margin: '5px',
                   padding: '8px 12px',
-                  backgroundColor: gradeCourseId === course.id ? '#bababa' : '#eee',
-                  color: '#000',
+                  backgroundColor: gradeCourseId === course.id ? '#007cba' : '#eee',
+                  color: gradeCourseId === course.id ? "#fff" : '#000' ,
                   border: 'none',
                   borderRadius: '4px',
                   cursor: 'pointer'
@@ -193,32 +202,55 @@ function App() {
             ))}
           </div>
 
-          <h3>Upload Assignment File</h3>
-          <input
-            type="file"
-            onChange={handleChange}
-            accept=".pdf,.docx"
-            style={{ marginBottom: "10px" }}
-          />
-          <div>
-            <button
+          <h3>Upload assignment file</h3>
+            <div style={{ marginBottom: '10px' }}>
+              <label
+                htmlFor="file-upload"
+              style={{
+                marginTop: '6px',
+                marginBottom: '6px',
+                backgroundColor: '#fff',
+                color: '#007cba',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
+              >
+                Choose File
+              </label>
+
+              <input
+                id="file-upload"
+                type="file"
+                onChange={handleChange}
+                accept=".pdf,.docx"
+                style={{ display: 'none' }}
+              />
+
+              {file && (
+                <span style={{ marginLeft: '10px', fontSize: "13px" }}>
+                  {file.name.length > 30 ? file.name.slice(0, 20) + '...' + file.name.slice(-10) : file.name}
+                </span>
+              )}
+            </div>
+            {isLoading || !file || (gradeCourseId || !user) && <button style={{
+                  padding: '8px 12px',
+                  backgroundColor: '#007cba',
+                  color: "#fff",
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }} 
               onClick={gradeWithFile}
-              disabled={isLoading || !file || !gradeCourseId}
             >
               {isLoading ? "Grading..." : "Grade File"}
-            </button>
+            </button>}
           </div>
-          {file && (
-            <p style={{ fontSize: "12px", color: "#666", marginTop: "5px" }}>
-              Selected: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
-            </p>
-          )}
-        </div>
       )}
 
       {response && gradePanel && (
         <div style={{ marginTop: "1rem", padding: "1rem", backgroundColor: "#f5f5f5", borderRadius: "5px" }}>
-          <h3>PreGrade Response:</h3>
+          <h3>Score: {grade}</h3>
           <div style={{ whiteSpace: "pre-wrap", fontSize: "14px", lineHeight: "1.4" }}>
             {response}
           </div>

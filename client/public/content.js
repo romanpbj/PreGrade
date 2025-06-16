@@ -93,7 +93,7 @@ function injectSidebar() {
       top: 0;
       right: 0;
       height: 100%;
-      width: 435px;
+      width: 450px;
       z-index: 9998;
       background-color: #0267ab;
       box-shadow: -2px 0 10px rgba(0,0,0,0.3);

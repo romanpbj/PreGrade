@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { db } from '../firebase/config.js';
-import { collection, addDoc, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { createCourse, deleteCourse } from '../firebase/database.js';
+import GradedAssignments from './GradedAssignments.jsx';
 
-
-const CoursesList = ({ userId}) => {
+const CoursesList = ({ userId }) => {
   const [courses, setCourses] = useState([]);
   const [newCourseName, setNewCourseName] = useState('');
   const [create, setCreate] = useState(false);
+  const [selectedCourseId, setSelectedCourseId] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   useEffect(() => {
     if (!userId) return;
@@ -37,22 +39,30 @@ const CoursesList = ({ userId}) => {
   };
 
   const handleDeleteCourse = async (courseId) => {
-    if (!window.confirm("Are you sure you want to delete this course?")) return;
-
     const result = await deleteCourse(userId, courseId);
     if (!result.success) {
-      alert("Error deleting course: " + result.error);
+      console.error("Error deleting course: " + result.error);
     }
+    setConfirmDeleteId(null);
   };
 
   return (
-    <div style={{ marginBottom: '1rem', padding: '1rem', border: '1px solid #ccc', borderRadius: '5px', backgroundColor: '#fff' }}>
+    <div style={{
+      marginBottom: '1rem',
+      padding: '1rem',
+      border: '1px solid #ccc',
+      borderRadius: '5px',
+      backgroundColor: '#fff',
+      maxWidth: '100%',
+      overflowX: 'hidden',
+      boxSizing: 'border-box'
+    }}>
       <h3>Your Courses</h3>
       <div style={{ marginBottom: '10px' }}>
         {courses.map(course => (
           <div key={course.id} style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
-            <button 
-              onClick={() => onSelectCourse(course.id)}
+            <button
+              onClick={() => setSelectedCourseId(course.id)}
               style={{
                 padding: '8px 12px',
                 border: 'none',
@@ -66,40 +76,101 @@ const CoursesList = ({ userId}) => {
             >
               {course.courseName}
             </button>
-            <button 
-              onClick={() => handleDeleteCourse(course.id)}
-              style={{
-                padding: '6px 10px',
-                backgroundColor: '#d32f2f',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              ✕
-            </button>
+
+            {confirmDeleteId === course.id ? (
+              <>
+                <button
+                  onClick={() => handleDeleteCourse(course.id)}
+                  style={{
+                    backgroundColor: '#d32f2f',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    padding: '6px 10px',
+                    marginRight: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Confirm
+                </button>
+                <button
+                  onClick={() => setConfirmDeleteId(null)}
+                  style={{
+                    backgroundColor: '#aaa',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    padding: '6px 10px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setConfirmDeleteId(course.id)}
+                style={{
+                  padding: '6px 10px',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                ✕
+              </button>
+            )}
           </div>
         ))}
       </div>
 
-      {create ? <div style={{ display: 'flex', gap: '5px' }}>
-        <input 
-          type="text" 
-          placeholder="New Course Name" 
-          value={newCourseName} 
-          onChange={(e) => setNewCourseName(e.target.value)} 
-          style={{ flexGrow: 1, padding: '8px' }}
-        />
-        <button onClick={handleCreateCourse} style={{ padding: '8px', backgroundColor: '#007cba', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-          Add
-        </button>
-      </div> : <></>}
+      {create && (
+        <div style={{ display: 'flex', gap: '5px' }}>
+          <input
+            type="text"
+            placeholder="New Course Name"
+            value={newCourseName}
+            onChange={(e) => setNewCourseName(e.target.value)}
+            style={{ flexGrow: 1, padding: '8px' }}
+          />
+          <button
+            onClick={handleCreateCourse}
+            style={{
+              backgroundColor: '#007cba',
+              color: '#fff',
+              marginBottom: "9px",
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Add
+          </button>
+          <button style={{
+              backgroundColor: 'gray',
+              color: '#fff',
+              marginBottom: "9px",
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }} onClick={() => setCreate(false)}>Cancel</button>
+        </div>
+      )}
 
       <div>
-        {create ? <button onClick={() => setCreate(false)}>Cancel</button> : <button onClick={() => setCreate(true)}>Add Course</button>}
-
+        {!create && <button style={{
+              backgroundColor: '#fff',
+              color: '#007cba',
+              marginBottom: "9px",
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }} onClick={() => setCreate(true)}>+ Add Course</button>}
       </div>
+
+      {selectedCourseId && (
+        <GradedAssignments userId={userId} courseId={selectedCourseId} />
+      )}
     </div>
   );
 };
