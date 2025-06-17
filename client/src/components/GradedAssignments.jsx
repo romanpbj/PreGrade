@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { deleteGradedResult } from '../firebase/database';
 
@@ -7,6 +7,8 @@ const GradedAssignments = ({ userId, courseId }) => {
   const [assignments, setAssignments] = useState([]);
   const [visibleFeedback, setVisibleFeedback] = useState({});
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [editingScoreId, setEditingScoreId] = useState(null);
+  const [scoreInput, setScoreInput] = useState('');
 
   useEffect(() => {
     if (!userId || !courseId) return;
@@ -37,6 +39,23 @@ const GradedAssignments = ({ userId, courseId }) => {
       console.error("Failed to delete:", result.error);
     }
     setConfirmDeleteId(null);
+  };
+
+  const handleSaveScore = async (assignmentId) => {
+    if (!scoreInput || !scoreInput.includes('/')) {
+      alert("Invalid format. Please use 'e.g. 52/60'.");
+      return;
+    }
+
+    try {
+      const docRef = doc(db, 'users', userId, 'courses', courseId, 'gradingResults', assignmentId);
+      await updateDoc(docRef, { actualScore: scoreInput });
+      setEditingScoreId(null);
+      setScoreInput('');
+    } catch (err) {
+      console.error("Error saving score:", err);
+      alert("Failed to save score.");
+    }
   };
 
   if (assignments.length === 0) return <p>No graded assignments found.</p>;
@@ -108,27 +127,79 @@ const GradedAssignments = ({ userId, courseId }) => {
             )}
 
             <strong>{a.assignmentName}</strong><br />
-            Score: {a.gradingResult?.score || '—'}<br />
+            <p>PreGrade Score: {a.gradingResult.score || '—'}</p>
+            {a.actualScore && <p>Actual Score: {a.actualScore || 'Not provided'}</p>}
 
             <button
               onClick={() => toggleFeedback(a.id)}
               style={{
-                marginTop: '6px',
-                marginBottom: '6px',
                 backgroundColor: '#f9f9f9',
                 color: '#007cba',
                 border: 'none',
                 borderRadius: '4px',
-                cursor: 'pointer',
-                marginLeft: "-5px"
+                cursor: 'pointer'
               }}
             >
               {visibleFeedback[a.id] ? 'Hide Feedback' : 'Show Feedback'}
             </button>
 
+            {editingScoreId === a.id ? (
+              <div style={{ display: 'flex', gap: '6px', marginBottom: '8px' }}>
+                <input
+                  type="text"
+                  placeholder="e.g. 52/60"
+                  value={scoreInput}
+                  onChange={(e) => setScoreInput(e.target.value)}
+                    style={{
+                        backgroundColor: '#f9f9f9',
+                        borderColor: 'gray',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                    }}
+                />
+                <button
+                  onClick={() => handleSaveScore(a.id)}
+                    style={{
+                        backgroundColor: '#f9f9f9',
+                        color: '#007cba',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                    }}
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => { setEditingScoreId(null); setScoreInput(''); }}
+                    style={{
+                        backgroundColor: '#f9f9f9',
+                        color: '#007cba',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                    }}
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setEditingScoreId(a.id)}
+                style={{
+                    backgroundColor: '#f9f9f9',
+                    color: 'gray',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                }}
+              >
+                {a.actualScore ? "Edit Actual Score" : "Enter Actual Score"}
+              </button>
+            )}
+
             {visibleFeedback[a.id] && (
               <div style={{ marginTop: '8px' }}>
-                {a.gradingResult?.feedback || '—'}
+                {a.feedback || a.gradingResult?.feedback || '—'}
               </div>
             )}
           </div>

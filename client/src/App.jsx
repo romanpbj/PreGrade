@@ -31,11 +31,12 @@ function App() {
 
   const buttonStyle = {
     padding: "0.5rem 1rem",
-    border: "none",
+    border: "2px solid #007cba",
     borderRadius: "4px",
     backgroundColor: "#fff",
     color: "#000",
     cursor: "pointer",
+    transition: "border 0.2s ease-in-out"
   };
 
   const handleClosePanel = () => {
@@ -164,8 +165,33 @@ function App() {
 
       {!showAuth && (
         <div style={navBtnsStyle}>
-          <button style={buttonStyle} onClick={() => { setCoursePanel(false); setGradePanel(true); }}>Grade</button>
-          {user && <button style={buttonStyle} onClick={() => { setCoursePanel(true); setGradePanel(false); }}>Courses</button>}
+          <button
+            onClick={() => {
+              setCoursePanel(false);
+              setGradePanel(true);
+            }}
+            style={{
+              ...buttonStyle,
+              border: gradePanel ? "2px solid #fff" : "2px solid #007cba"
+            }}
+          >
+            Grade
+          </button>
+
+          {user && (
+            <button
+              onClick={() => {
+                setCoursePanel(true);
+                setGradePanel(false);
+              }}
+              style={{
+                ...buttonStyle,
+                border: coursePanel ? "2px solid #fff" : "2px solid #007cba"
+              }}
+            >
+              Courses
+            </button>
+          )}
         </div>
       )}
 
