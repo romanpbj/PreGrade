@@ -1,4 +1,5 @@
 import { auth } from './config.js';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
 import {
   createUserWithEmailAndPassword,
@@ -40,3 +41,12 @@ export async function logout() {
   }
 }
 
+export async function loginWithGoogle() {
+  const provider = new GoogleAuthProvider();
+  try {
+    const result = await signInWithPopup(auth, provider);
+    return { success: true, user: result.user };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}

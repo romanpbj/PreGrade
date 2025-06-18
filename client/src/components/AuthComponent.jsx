@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { signIn, signUp } from '../firebase/auth.js';
 import { createUserProfile } from '../firebase/database.js';
+import GoogleSignInButton from './GoogleSignInButton';
+
 
 const AuthComponent = ({ onAuthSuccess, onCancel }) => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -191,7 +193,13 @@ const AuthComponent = ({ onAuthSuccess, onCancel }) => {
               {isSignUp ? "Already have an account? Sign In" : "Need an account? Sign Up"}
             </button>
           </div>
+
+
         </form>
+        
+      </div>
+      <div style={{ marginTop: "15px", textAlign: "center" }}>
+        <GoogleSignInButton />
       </div>
     </div>
   );
