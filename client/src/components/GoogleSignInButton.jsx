@@ -1,10 +1,11 @@
 import React from 'react';
 import { loginWithGoogle } from '../firebase/auth';
 
-const GoogleSignInButton = () => {
+const GoogleSignInButton = ( {googleSuccess} ) => {
   const handleClick = async () => {
     const result = await loginWithGoogle();
     if (result.success) {
+      googleSuccess(result.user)
       console.log("Signed in:", result.user);
     } else {
       console.error("Google Sign-In Error:", result.error);

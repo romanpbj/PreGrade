@@ -14,6 +14,10 @@ const AuthComponent = ({ onAuthSuccess, onCancel }) => {
   });
   const [error, setError] = useState('');
 
+  const googleAuthSuccess = (user) => {
+    onAuthSuccess(user)
+  }
+
   const handleAuth = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -199,7 +203,7 @@ const AuthComponent = ({ onAuthSuccess, onCancel }) => {
         
       </div>
       <div style={{ marginTop: "15px", textAlign: "center" }}>
-        <GoogleSignInButton />
+        <GoogleSignInButton googleSuccess = {googleAuthSuccess}/>
       </div>
     </div>
   );
