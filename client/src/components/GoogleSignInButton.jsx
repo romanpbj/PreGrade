@@ -1,7 +1,7 @@
 import React from 'react';
 import { loginWithGoogle } from '../firebase/auth';
 
-const GoogleSignInButton = ( {googleSuccess} ) => {
+const GoogleSignInButton = ( {googleString, googleSuccess} ) => {
   const handleClick = async () => {
     const result = await loginWithGoogle();
     if (result.success) {
@@ -13,9 +13,9 @@ const GoogleSignInButton = ( {googleSuccess} ) => {
   };
 
   return (
-    <button onClick={handleClick} style={{ display: 'flex', alignItems: 'center', padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}>
+    <button onClick={handleClick} style={{  backgroundColor: "#fff", display: 'flex', alignItems: 'center', padding: '8px', paddingRight: '60px', paddingLeft: '60px', border: '1px solid #ccc', borderRadius: '30px' }}>
       <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" style={{ width: '18px', marginRight: '8px' }} />
-      Sign in with Google
+      {googleString}
     </button>
   );
 };

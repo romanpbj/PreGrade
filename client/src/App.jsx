@@ -15,11 +15,12 @@ function App() {
   const [courses, setCourses] = useState([]);
   const [file, setFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [grade, setGrade] = useState("")
+  const [grade, setGrade] = useState("");
   const [response, setResponse] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [showAuth, setShowAuth] = useState(false);
   const [gradeCourseId, setGradeCourseId] = useState(null);
-  const { user, loading: authLoading, handleLogout, getAuthHeaders, getFormDataHeaders } = useAuth();
+  const { user, loading: authLoading, handleLogout, getFormDataHeaders } = useAuth();
 
   const navBtnsStyle = {
     display: "flex",
@@ -32,15 +33,11 @@ function App() {
   const buttonStyle = {
     padding: "0.5rem 1rem",
     border: "2px solid #007cba",
-    borderRadius: "4px",
+    borderRadius: "10px",
     backgroundColor: "#fff",
     color: "#000",
     cursor: "pointer",
     transition: "border 0.2s ease-in-out"
-  };
-
-  const handleClosePanel = () => {
-    window.postMessage({ type: "CLOSE_PREGRADE_PANEL" }, "*");
   };
 
   useEffect(() => {
@@ -66,78 +63,78 @@ function App() {
   function handleChange(e) {
     setFile(e.target.files[0]);
     setResponse("");
+    setErrorMessage("");
   }
 
   async function gradeWithFile() {
-  if (!file) return alert("Please select a file.");
-  if (!gradeCourseId && user) return alert("Please select a course.");
-  setIsLoading(true);
+    if (!file) {
+      setErrorMessage("Please select a file.");
+      return;
+    }
+    if (!gradeCourseId && user) {
+      setErrorMessage("Please select a course.");
+      return;
+    }
 
-  try {
-    window.postMessage({ type: "SCRAPE_TEXT_REQUEST" }, "*");
+    setIsLoading(true);
+    setErrorMessage("");
+    setResponse("");
 
-    const handleResponse = async (event) => {
-      if (event.source !== window || event.data?.type !== "SCRAPE_TEXT_RESPONSE") return;
-      window.removeEventListener("message", handleResponse);
+    try {
+      window.postMessage({ type: "SCRAPE_TEXT_REQUEST" }, "*");
 
-      const assignmentText = event.data.assignmentText;
-      if (!assignmentText) {
-        setIsLoading(false);
-        return alert("Failed to get assignment text.");
-      }
+      const handleResponse = async (event) => {
+        if (event.source !== window || event.data?.type !== "SCRAPE_TEXT_RESPONSE") return;
+        window.removeEventListener("message", handleResponse);
 
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("assignmentText", assignmentText);
-
-      try {
-        const headers = await getFormDataHeaders();
-        const res = await axios.post("http://localhost:3001/api/grade", formData, { headers });
-
-        const feedback = res.data.feedback;
-        const score = res.data.preGradedScore
-        setResponse(feedback)
-        setGrade(score)
-        const gradingResult = {
-          feedback,
-          score
-        };
-
-        if (!feedback || !score) {
-          console.error("Invalid grading result or pre-graded score:", gradingResult, preGrade);
-          alert("Grading failed: Incomplete response from AI.");
+        const assignmentText = event.data.assignmentText;
+        if (!assignmentText) {
+          setErrorMessage("Failed to get assignment text.");
           setIsLoading(false);
           return;
         }
 
-        const result = await saveGradingResultToCourse(user.uid, gradeCourseId, file.name, gradingResult);
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("assignmentText", assignmentText);
 
-        if (!result.success) {
-          alert("Failed to save grading result: " + result.error);
-          return;
+        try {
+          const headers = await getFormDataHeaders();
+          const res = await axios.post("http://localhost:3001/api/grade", formData, { headers });
+
+          const feedback = res.data.feedback;
+          const score = res.data.preGradedScore;
+          setResponse(feedback);
+          setGrade(score);
+
+          const gradingResult = { feedback, score };
+
+          if (!feedback || !score) {
+            setErrorMessage("Grading failed: Incomplete response from AI.");
+            setIsLoading(false);
+            return;
+          }
+
+          const result = await saveGradingResultToCourse(user.uid, gradeCourseId, file.name, gradingResult);
+
+          if (!result.success) {
+            setErrorMessage("Failed to save grading result: " + result.error);
+          }
+        } catch (err) {
+          setErrorMessage("Grading failed: " + (err.response?.data?.error || err.message));
+        } finally {
+          setIsLoading(false);
         }
+      };
 
-        alert(`File "${res.data.filename}" graded and saved successfully!`);
-      } catch (err) {
-        console.error(err);
-        alert("Grading failed: " + (err.response?.data?.error || err.message));
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    window.addEventListener("message", handleResponse);
-  } catch (err) {
-    console.error(err);
-    setIsLoading(false);
-    alert("Unexpected error contacting content script.");
+      window.addEventListener("message", handleResponse);
+    } catch (err) {
+      setErrorMessage("Unexpected error contacting content script.");
+      setIsLoading(false);
+    }
   }
-}
 
-  const handleAuthSuccess = (user) => {
-    setShowAuth(false);
-    alert(`Welcome ${user.displayName || user.email}!`);
-  };
+  const handleAuthSuccess = () => setShowAuth(false);
 
   if (authLoading) {
     return (
@@ -156,14 +153,14 @@ function App() {
         showAuth={showAuth}
       />
 
-      {showAuth && !user && (
+      {!showAuth && !user && (
         <AuthComponent
           onAuthSuccess={handleAuthSuccess}
           onCancel={() => setShowAuth(false)}
         />
       )}
 
-      {!showAuth && (
+      {user && (
         <div style={navBtnsStyle}>
           <button
             onClick={() => {
@@ -178,20 +175,18 @@ function App() {
             Grade
           </button>
 
-          {user && (
-            <button
-              onClick={() => {
-                setCoursePanel(true);
-                setGradePanel(false);
-              }}
-              style={{
-                ...buttonStyle,
-                border: coursePanel ? "2px solid #fff" : "2px solid #007cba"
-              }}
-            >
-              Courses
-            </button>
-          )}
+          <button
+            onClick={() => {
+              setCoursePanel(true);
+              setGradePanel(false);
+            }}
+            style={{
+              ...buttonStyle,
+              border: coursePanel ? "2px solid #fff" : "2px solid #007cba"
+            }}
+          >
+            Courses
+          </button>
         </div>
       )}
 
@@ -199,27 +194,21 @@ function App() {
         <CoursesList userId={user.uid} />
       )}
 
-      {gradePanel && !showAuth && (
-        <div style={{ marginBottom: "1rem", padding: "1rem", border: "1px solid #ccc", borderRadius: "5px", backgroundColor: "#fff" }}>
-          {!user ? (
-            <h3>Sign in for course specific grading</h3>
-          ) : courses.length ? (
-            <h3>Select course</h3>
-          ) : (
-            <h3>You have no courses</h3>
-          )}
+      {gradePanel && !showAuth && user && (
+        <div style={{ marginBottom: "1rem", padding: "1rem", border: "1px solid #ccc", borderRadius: "10px", backgroundColor: "#fff" }}>
+          <h3>{courses.length ? "Course" : "You have no courses"}</h3>
           <div style={{ marginBottom: '10px' }}>
             {courses.map(course => (
               <button
                 key={course.id}
                 onClick={() => setGradeCourseId(course.id)}
                 style={{
-                  margin: '5px',
                   padding: '8px 12px',
+                  marginRight: "5px",
                   backgroundColor: gradeCourseId === course.id ? '#007cba' : '#eee',
-                  color: gradeCourseId === course.id ? "#fff" : '#000' ,
+                  color: gradeCourseId === course.id ? "#fff" : '#000',
                   border: 'none',
-                  borderRadius: '4px',
+                  borderRadius: '10px',
                   cursor: 'pointer'
                 }}
               >
@@ -228,64 +217,73 @@ function App() {
             ))}
           </div>
 
-          <h3>Upload assignment file</h3>
-            <div style={{ marginBottom: '10px' }}>
-              <label
-                htmlFor="file-upload"
-              style={{
-                marginTop: '6px',
-                marginBottom: '6px',
-                backgroundColor: '#fff',
-                color: '#007cba',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-              }}
-              >
-                Choose File
-              </label>
+          <hr style={{ border: "none", borderTop: "1px solid #ccc", margin: "20px 0" }} />
 
-              <input
-                id="file-upload"
-                type="file"
-                onChange={handleChange}
-                accept=".pdf,.docx"
-                style={{ display: 'none' }}
-              />
+          <h3>Assignment File</h3>
+          <div style={{ marginBottom: '10px' }}>
+            <label htmlFor="file-upload" style={{
+              marginTop: '6px',
+              marginBottom: '6px',
+              backgroundColor: '#fff',
+              color: '#007cba',
+              border: 'none',
+              borderRadius: '15px',
+              cursor: 'pointer',
+            }}>
+              Choose File
+            </label>
+            <input
+              id="file-upload"
+              type="file"
+              onChange={handleChange}
+              accept=".pdf,.docx"
+              style={{ display: 'none' }}
+            />
+            {file && (
+              <span style={{ marginLeft: '10px', fontSize: "13px" }}>
+                {file.name.length > 30 ? file.name.slice(0, 20) + '...' + file.name.slice(-10) : file.name}
+              </span>
+            )}
+          </div>
 
-              {file && (
-                <span style={{ marginLeft: '10px', fontSize: "13px" }}>
-                  {file.name.length > 30 ? file.name.slice(0, 20) + '...' + file.name.slice(-10) : file.name}
-                </span>
-              )}
-            </div>
-            {isLoading || !file || (gradeCourseId || !user) && <button style={{
-                  padding: '8px 12px',
-                  backgroundColor: '#007cba',
-                  color: "#fff",
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer'
-                }} 
+          {file && gradeCourseId && (
+            <button style={{
+              padding: '8px 12px',
+              backgroundColor: '#007cba',
+              color: "#fff",
+              border: 'none',
+              borderRadius: '10px',
+              cursor: 'pointer'
+            }}
               onClick={gradeWithFile}
             >
               {isLoading ? "Grading..." : "Grade File"}
-            </button>}
-          </div>
-      )}
-
-      {response && gradePanel && (
-        <div style={{ marginTop: "1rem", padding: "1rem", backgroundColor: "#f5f5f5", borderRadius: "5px" }}>
-          <h3>Score: {grade}</h3>
-          <div style={{ whiteSpace: "pre-wrap", fontSize: "14px", lineHeight: "1.4" }}>
-            {response}
-          </div>
+            </button>
+          )}
         </div>
       )}
 
-      {isLoading && (
-        <div style={{ textAlign: "center", margin: "1rem 0" }}>
-          <p>Processing... Please wait.</p>
+      {(response || errorMessage) && gradePanel && user && (
+        <div style={{
+          marginTop: "1rem",
+          padding: "1rem",
+          backgroundColor: errorMessage ? "#ffe6e6" : "#f5f5f5",
+          borderRadius: "10px",
+          border: errorMessage ? "1px solid #cc0000" : "none"
+        }}>
+          {errorMessage ? (
+            <>
+              <h3 style={{ color: "#cc0000" }}>⚠️ Error</h3>
+              <div style={{ color: "#cc0000", fontSize: "14px" }}>{errorMessage}</div>
+            </>
+          ) : (
+            <>
+              <h3>Score: {grade}</h3>
+              <div style={{ whiteSpace: "pre-wrap", fontSize: "14px", lineHeight: "1.4" }}>
+                {response}
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>

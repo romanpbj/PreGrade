@@ -1,9 +1,7 @@
 const UserHeader = ({ user, onShowAuth, onLogout, showAuth }) => {
     const handleLogout = async () => {
       const result = await onLogout();
-      if (result.success) {
-        alert('Logged out successfully!');
-      } else {
+      if (!result.success) {
         alert('Logout failed: ' + result.error);
       }
     };
@@ -24,7 +22,7 @@ const UserHeader = ({ user, onShowAuth, onLogout, showAuth }) => {
         <h2 style={{ margin: 0, color: "#fff" }}>PreGrade</h2>
 
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          {user ? (
+          {user && (
             <>
               <div style={{ textAlign: "right", color: "#fff", fontSize: "14px", fontWeight: "bold", marginTop: "3px" }}>
                 {user.displayName || 'User'}
@@ -44,23 +42,7 @@ const UserHeader = ({ user, onShowAuth, onLogout, showAuth }) => {
                 Logout
               </button>
             </>
-          ) : (
-            <button 
-              onClick={onShowAuth}
-                style={{ 
-                  fontSize: "14px", 
-                  padding: "6px 12px",
-                  backgroundColor: "#0267ab",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer"
-                }}
-            >
-              {showAuth ? 'Cancel' : 'Sign In'}
-            </button>
           )}
-
           <button 
             onClick={handleClosePanel} 
             style={{ 

@@ -63,16 +63,15 @@ const GradedAssignments = ({ userId, courseId }) => {
   return (
     <div style={{ marginTop: '1rem', maxWidth: '100%', overflowX: 'hidden' }}>
       <h4>Graded Assignments</h4>
+      <hr style={{ border: "none", borderTop: "1px solid #ccc", margin: "5px 0", marginBottom: "10px" }} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {assignments.map(a => (
           <div
             key={a.id}
             style={{
               position: 'relative',
-              background: '#f9f9f9',
-              padding: '10px',
-              borderRadius: '6px',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+              background: '#fff',
+              borderRadius: '10px',
               wordWrap: 'break-word'
             }}
           >
@@ -113,7 +112,7 @@ const GradedAssignments = ({ userId, courseId }) => {
                   position: 'absolute',
                   top: '8px',
                   right: '8px',
-                  backgroundColor: '#f9f9f9',
+                  backgroundColor: '#fff',
                   border: 'none',
                   borderRadius: '4px',
                   padding: '10px 10px',
@@ -133,7 +132,7 @@ const GradedAssignments = ({ userId, courseId }) => {
             <button
               onClick={() => toggleFeedback(a.id)}
               style={{
-                backgroundColor: '#f9f9f9',
+                backgroundColor: '#fff',
                 color: '#007cba',
                 border: 'none',
                 borderRadius: '4px',
@@ -151,7 +150,7 @@ const GradedAssignments = ({ userId, courseId }) => {
                   value={scoreInput}
                   onChange={(e) => setScoreInput(e.target.value)}
                     style={{
-                        backgroundColor: '#f9f9f9',
+                        backgroundColor: '#fff',
                         borderColor: 'gray',
                         borderRadius: '4px',
                         cursor: 'pointer'
@@ -160,7 +159,7 @@ const GradedAssignments = ({ userId, courseId }) => {
                 <button
                   onClick={() => handleSaveScore(a.id)}
                     style={{
-                        backgroundColor: '#f9f9f9',
+                        backgroundColor: '#fff',
                         color: '#007cba',
                         border: 'none',
                         borderRadius: '4px',
@@ -172,8 +171,8 @@ const GradedAssignments = ({ userId, courseId }) => {
                 <button
                   onClick={() => { setEditingScoreId(null); setScoreInput(''); }}
                     style={{
-                        backgroundColor: '#f9f9f9',
-                        color: '#007cba',
+                        backgroundColor: '#fff',
+                        color: 'gray',
                         border: 'none',
                         borderRadius: '4px',
                         cursor: 'pointer'
@@ -186,7 +185,7 @@ const GradedAssignments = ({ userId, courseId }) => {
               <button
                 onClick={() => setEditingScoreId(a.id)}
                 style={{
-                    backgroundColor: '#f9f9f9',
+                    backgroundColor: '#fff',
                     color: 'gray',
                     border: 'none',
                     borderRadius: '4px',
@@ -202,6 +201,7 @@ const GradedAssignments = ({ userId, courseId }) => {
                 {a.feedback || a.gradingResult?.feedback || '—'}
               </div>
             )}
+            <hr style={{ border: "none", borderTop: "1px solid #ccc", margin: "5px 0" }} />
           </div>
         ))}
       </div>

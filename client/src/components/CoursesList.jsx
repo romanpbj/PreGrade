@@ -51,7 +51,7 @@ const CoursesList = ({ userId }) => {
       marginBottom: '1rem',
       padding: '1rem',
       border: '1px solid #ccc',
-      borderRadius: '5px',
+      borderRadius: '15px',
       backgroundColor: '#fff',
       maxWidth: '100%',
       overflowX: 'hidden',
@@ -66,12 +66,13 @@ const CoursesList = ({ userId }) => {
               style={{
                 padding: '8px 12px',
                 border: 'none',
-                borderRadius: '4px',
+                borderRadius: '10px',
                 cursor: 'pointer',
                 marginRight: '10px',
                 flexGrow: 1,
                 textAlign: 'left',
-                backgroundColor: '#eee'
+                backgroundColor: selectedCourseId === course.id ? '#007cba' : '#eee',
+                color: selectedCourseId === course.id ? '#fff' : '#000'
               }}
             >
               {course.courseName}
@@ -131,24 +132,24 @@ const CoursesList = ({ userId }) => {
             placeholder="New Course Name"
             value={newCourseName}
             onChange={(e) => setNewCourseName(e.target.value)}
-            style={{ flexGrow: 1, padding: '8px' }}
+            style={{ flexGrow: 1, padding: '6px', borderRadius: "10px" }}
           />
           <button
             onClick={handleCreateCourse}
             style={{
-              backgroundColor: '#007cba',
-              color: '#fff',
+              backgroundColor: '#fff',
+              color: '#007cba',
               marginBottom: "9px",
               border: 'none',
-              borderRadius: '4px',
+              borderRadius: '10px',
               cursor: 'pointer'
             }}
           >
             Add
           </button>
           <button style={{
-              backgroundColor: 'gray',
-              color: '#fff',
+              backgroundColor: '#fff',
+              color: '#gray',
               marginBottom: "9px",
               border: 'none',
               borderRadius: '4px',
