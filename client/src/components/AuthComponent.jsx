@@ -198,9 +198,16 @@ const AuthComponent = ({ onAuthSuccess, onCancel }) => {
         </form>
         
       </div>
-      <div style={{ marginTop: "15px", textAlign: "center" }}>
-        <GoogleSignInButton />
-      </div>
+      <div
+  style={{
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: '20px',
+  }}
+>
+  <GoogleSignInButton />
+</div>
     </div>
   );
 };
