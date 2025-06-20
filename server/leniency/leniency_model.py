@@ -16,11 +16,9 @@ def compute_leniency(predicted_scores, actual_scores, epochs=1000):
     X = torch.tensor(predicted_scores, dtype=torch.float32).view(-1, 1)
     y = torch.tensor(actual_scores, dtype=torch.float32).view(-1, 1)
 
-    # Debug input tensors
     print(f"DEBUG: X = {X.tolist()}", file=sys.stderr)
     print(f"DEBUG: y = {y.tolist()}", file=sys.stderr)
 
-    # Normalize (standardization)
     X_mean, X_std = X.mean(), X.std()
     y_mean, y_std = y.mean(), y.std()
     X = (X - X_mean) / (X_std + 1e-8)

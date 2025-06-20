@@ -49,15 +49,12 @@ const CoursesList = ({ userId }) => {
   return (
     <div style={{
       marginBottom: '1rem',
-      padding: '1rem',
-      border: '1px solid #ccc',
       borderRadius: '15px',
       backgroundColor: '#fff',
       maxWidth: '100%',
       overflowX: 'hidden',
       boxSizing: 'border-box'
     }}>
-      <h3>Your Courses</h3>
       <div style={{ marginBottom: '10px' }}>
         {courses.map(course => (
           <div key={course.id} style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>

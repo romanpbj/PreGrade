@@ -4,7 +4,8 @@ import dotenv from "dotenv";
 import multer from 'multer';
 import { OpenAI } from 'openai';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
-import mammoth from 'mammoth';
+import { spawn } from 'child_process';
+import path from 'path';
 
 dotenv.config();
 
@@ -34,7 +35,6 @@ async function extractTextFromPdf(buffer) {
   return fullText;
 }
 
-
 app.post("/api/grade", upload.single("file"), async (req, res) => {
   const { assignmentText, weight, bias } = req.body;
   const fileBuffer = req.file?.buffer;
@@ -45,29 +45,20 @@ app.post("/api/grade", upload.single("file"), async (req, res) => {
 
   let fileText = '';
   try {
-    if (req.file.mimetype === 'application/pdf') {
-      fileText = await extractTextFromPdf(fileBuffer);
-    } else if (
-      req.file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    ) {
-      const result = await mammoth.extractRawText({ buffer: fileBuffer });
-      fileText = result.value;
-    } else {
-      return res.status(400).json({ error: "Unsupported file type. Only PDF and DOCX are allowed." });
-    }
+    fileText = await extractTextFromPdf(fileBuffer);
   } catch (err) {
-    console.error("File parse error:", err);
-    return res.status(500).json({ error: "Failed to parse uploaded file" });
+    console.error("PDF parse error:", err);
+    return res.status(500).json({ error: "Failed to parse PDF" });
   }
 
   if (!fileText.trim()) {
-    return res.status(400).json({ error: "No readable text found in the file." });
+    return res.status(400).json({ error: "No readable text found in the PDF." });
   }
 
   const safeWeight = parseFloat(weight) || 1;
   const safeBias = parseFloat(bias) || 0;
 
-  const prompt = `You are an AI teaching assistant. Grade the following student's assignment and give direct feedback.
+const prompt = `You are an AI teaching assistant. Grade the following student's assignment and give direct feedback.
 
     Begin by assigning a raw score based on the rubric. Then apply the leniency adjustment using this formula:
 
@@ -88,6 +79,8 @@ app.post("/api/grade", upload.single("file"), async (req, res) => {
     - Highlight what the student did well
     - Mention any areas needing improvement
     - Align your tone and feedback with the adjusted score (not the raw score)
+
+    Remember: The weight and bias reflect how strict or lenient this specific course tends to be so tailor your response to that.
 
     Here's an example of what feedback section need to looks like, make sure to limit it to 3 sentences:
     1. You demonstrated a strong grasp of matrix algebra in the context of balancing chemical equations. However your course is strict so you should improve upon...
@@ -133,36 +126,52 @@ app.post("/api/grade", upload.single("file"), async (req, res) => {
   }
 });
 
-app.post('/api/bodytext', async (req, res) => {
-  const { assignmentText } = req.body;
+app.post('/api/leniency', async (req, res) => {
+  const { predicted, actual } = req.body;
 
-  if (!assignmentText) {
-    return res.status(400).json({ error: "Missing assignmentText" });
+  if (!predicted || !actual || predicted.length !== actual.length) {
+    return res.status(400).json({ error: "Invalid input arrays" });
   }
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [
-        { role: "system", content: "You are a helpful assistant that generates insights from text." },
-        { role: "user", content: `Generate insights from the following text: ${assignmentText}` }
-      ],
-      temperature: 0.7,
-      max_tokens: 500,
+    const scriptPath = path.resolve('leniency/leniency_model.py');
+    const py = spawn('python', [scriptPath]);
+
+    let result = '';
+    let errorOutput = '';
+
+    py.stdout.on('data', (data) => {
+      result += data.toString();
     });
 
-    const aiResponse = completion.choices[0].message.content;
-    res.json({ insights: aiResponse });
-  } catch (error) {
-    console.error("Error generating text with OpenAI:", error);
-    res.status(500).json({ error: "Failed to generate text" });
-  }
-});
+    py.stderr.on('data', (data) => {
+      errorOutput += data.toString();
+    });
 
-app.post('/api/upload', async (req, res) => {
-  res.json({ 
-    insights: "File upload endpoint - implement your file processing logic here"
-  });
+    py.on('close', (code) => {
+      if (code !== 0) {
+        return res.status(500).json({ error: "Python error", details: errorOutput });
+      }
+
+      try {
+        const parsed = JSON.parse(result);
+        res.json(parsed);
+      } catch (err) {
+        res.status(500).json({
+          error: "Failed to parse Python output",
+          raw: result,
+          stderr: errorOutput
+        });
+      }
+    });
+
+    py.stdin.write(JSON.stringify({ predicted, actual }));
+    py.stdin.end();
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Unexpected error invoking Python" });
+  }
 });
 
 app.listen(PORT, () => {

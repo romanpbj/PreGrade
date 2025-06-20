@@ -126,7 +126,6 @@ async function gradeWithFile() {
   const navBtnsStyle = {
     display: "flex",
     justifyContent: "left",
-    gap: "10px",
     marginTop: "1rem",
     marginBottom: "1rem",
   };
@@ -134,6 +133,7 @@ async function gradeWithFile() {
   const buttonStyle = {
     padding: "0.5rem 1rem",
     border: "2px solid #007cba",
+    minWidth: "2500px",
     borderRadius: "10px",
     backgroundColor: "#fff",
     color: "#000",
@@ -147,8 +147,18 @@ async function gradeWithFile() {
     return <div style={{ padding: "1rem", textAlign: "center", minWidth: "400px" }}>Loading...</div>;
   }
 
-  return (
-    <div style={{ padding: "1rem", minWidth: "400px" }}>
+return (
+  <div style={{ padding: "1rem", minWidth: "400px", backgroundColor: "#007cba", minHeight: "100vh" }}>
+    <div style={{
+      backgroundColor: "#fff",
+      borderRadius: "20px",
+      padding: "1.5rem",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+      display: "flex",
+      flexDirection: "column",
+      gap: "1rem",
+      color: "#000"
+    }}>
       <UserHeader
         user={user}
         onShowAuth={() => setShowAuth(!showAuth)}
@@ -164,124 +174,190 @@ async function gradeWithFile() {
       )}
 
       {user && (
-        <div style={navBtnsStyle}>
-          <button
-            onClick={() => {
-              setCoursePanel(false);
-              setGradePanel(true);
-            }}
-            style={{ ...buttonStyle, border: gradePanel ? "2px solid #fff" : "2px solid #007cba" }}
-          >
-            Grade
-          </button>
-          <button
-            onClick={() => {
-              setCoursePanel(true);
-              setGradePanel(false);
-            }}
-            style={{ ...buttonStyle, border: coursePanel ? "2px solid #fff" : "2px solid #007cba" }}
-          >
-            Courses
-          </button>
+        <div style={{ display: "flex", justifyContent: "center", marginTop: "0.5rem" }}>
+          <div style={{
+            display: "flex",
+            border: "1px solid #ccc",
+            borderRadius: "12px",
+            overflow: "hidden",
+            backgroundColor: "#f5f5f5"
+          }}>
+            <button
+              onClick={() => {
+                setCoursePanel(false);
+                setGradePanel(true);
+              }}
+              style={{
+                padding: "0.5rem 1rem",
+                border: "none",
+                outline: "none",
+                backgroundColor: gradePanel ? "#007cba" : "transparent",
+                color: gradePanel ? "#fff" : "#000",
+                fontWeight: "500",
+                minWidth: "180px",
+                cursor: "pointer",
+                borderRight: "1px solid #ccc",
+                transition: "background-color 0.3s ease, color 0.3s ease"
+              }}
+            >
+              Grade
+            </button>
+            <button
+              onClick={() => {
+                setCoursePanel(true);
+                setGradePanel(false);
+              }}
+              style={{
+                padding: "0.5rem 1rem",
+                border: "none",
+                outline: "none",
+                backgroundColor: coursePanel ? "#007cba" : "transparent",
+                color: coursePanel ? "#fff" : "#000",
+                fontWeight: "500",
+                minWidth: "180px",
+                cursor: "pointer",
+                transition: "background-color 0.3s ease, color 0.3s ease"
+              }}
+            >
+              Courses
+            </button>
+          </div>
         </div>
       )}
 
       {user && coursePanel && !showAuth && <CoursesList userId={user.uid} />}
 
       {gradePanel && !showAuth && user && (
-        <div style={{ marginBottom: "1rem", padding: "1rem", border: "1px solid #ccc", borderRadius: "10px", backgroundColor: "#fff" }}>
-          <h3>{courses.length ? "Course" : "You have no courses"}</h3>
-          <div style={{ marginBottom: '10px' }}>
-            {courses.map(course => (
-              <button
-                key={course.id}
-                onClick={() => setGradeCourseId(course.id)}
-                style={{
-                  padding: '8px 12px',
-                  marginRight: "5px",
-                  backgroundColor: gradeCourseId === course.id ? '#007cba' : '#eee',
-                  color: gradeCourseId === course.id ? "#fff" : '#000',
-                  border: 'none',
-                  borderRadius: '10px',
-                  cursor: 'pointer'
-                }}
-              >
-                {course.courseName}
-              </button>
-            ))}
+        <>
+          <div>
+            <h3>{courses.length ? <></> : "Create Courses to grade for"}</h3>
+            <div style={{ marginBottom: '10px' }}>
+              {courses.map(course => (
+                <button
+                  key={course.id}
+                  onClick={() => setGradeCourseId(course.id)}
+                  style={{
+                    padding: "8px 16px",
+                    marginRight: "8px",
+                    minWidth: "80px",
+                    fontWeight: 500,
+                    border: gradeCourseId === course.id ? "1px solid #007cba" : "1px solid #ccc",
+                    backgroundColor: gradeCourseId === course.id ? "#007cba" : "#f5f5f5",
+                    color: gradeCourseId === course.id ? "#fff" : "#000",
+                    borderRadius: "12px",
+                    cursor: "pointer",
+                    transition: "all 0.3s ease"
+                  }}
+                >
+                  {course.courseName}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <hr style={{ border: "none", borderTop: "1px solid #ccc", margin: "20px 0" }} />
-          <h3>Assignment File</h3>
-          <div style={{ marginBottom: '10px' }}>
-            <label htmlFor="file-upload" style={{
-              marginTop: '6px',
-              marginBottom: '6px',
-              backgroundColor: '#fff',
-              color: '#007cba',
-              border: 'none',
-              borderRadius: '15px',
-              cursor: 'pointer',
+          <div>
+            <h3>Assignment File</h3>
+            <div style={{
+              border: '2px dashed rgb(173, 173, 173)',
+              borderRadius: '12px',
+              padding: '1rem 1rem',
+              textAlign: 'center',
+              backgroundColor: '#f9f9f9',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '0.5rem'
             }}>
-              Choose File
-            </label>
-            <input
-              id="file-upload"
-              type="file"
-              onChange={handleChange}
-              accept=".pdf,.docx"
-              style={{ display: 'none' }}
-            />
-            {file && (
-              <span style={{ marginLeft: '10px', fontSize: "13px" }}>
-                {file.name.length > 30 ? file.name.slice(0, 20) + '...' + file.name.slice(-10) : file.name}
-              </span>
+              <img
+                src="https://i.imgur.com/x1lQpVw.png"
+                alt="Upload Icon"
+                style={{
+                  width: '100px',
+                  height: '100px',
+                  marginTop: '-25px',
+                  marginBottom: '-20px',
+                  opacity: 0.9
+                }}
+              />
+
+              <label htmlFor="file-upload" style={{
+                padding: '10px 20px',
+                backgroundColor: '#007cba',
+                color: '#fff',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: '500',
+                fontSize: '14px',
+                display: 'inline-block'
+              }}>
+                Choose File
+              </label>
+
+              <input
+                id="file-upload"
+                type="file"
+                onChange={handleChange}
+                accept=".pdf,.docx"
+                style={{ display: 'none' }}
+              />
+
+              {file && (
+                <div style={{ fontSize: '13px', color: '#333' }}>
+                  {file.name.length > 40
+                    ? file.name.slice(0, 25) + '...' + file.name.slice(-10)
+                    : file.name}
+                </div>
+              )}
+            </div>
+
+            {file && gradeCourseId && (
+              <button
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#007cba',
+                  color: "#000",
+                  border: 'none',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  marginTop: '1rem'
+                }}
+                onClick={gradeWithFile}
+              >
+                {isLoading ? "Grading..." : "Grade File"}
+              </button>
             )}
           </div>
 
-          {file && gradeCourseId && (
-            <button
-              style={{
-                padding: '8px 12px',
-                backgroundColor: '#007cba',
-                color: "#fff",
-                border: 'none',
-                borderRadius: '10px',
-                cursor: 'pointer'
-              }}
-              onClick={gradeWithFile}
-            >
-              {isLoading ? "Grading..." : "Grade File"}
-            </button>
+          {(response || errorMessage) && (
+            <div style={{
+              marginTop: "1rem",
+              padding: "1rem",
+              backgroundColor: errorMessage ? "#ffe6e6" : "#f5f5f5",
+              borderRadius: "10px",
+              border: errorMessage ? "1px solid #cc0000" : "none",
+              color: "#000"
+            }}>
+              {errorMessage ? (
+                <>
+                  <h3 style={{ color: "#cc0000" }}>⚠️ Error</h3>
+                  <div style={{ color: "#cc0000", fontSize: "14px" }}>{errorMessage}</div>
+                </>
+              ) : (
+                <>
+                  <h3>Score: {grade}</h3>
+                  <div style={{ whiteSpace: "pre-wrap", fontSize: "14px", lineHeight: "1.4" }}>
+                    {response}
+                  </div>
+                </>
+              )}
+            </div>
           )}
-        </div>
-      )}
-
-      {(response || errorMessage) && gradePanel && user && (
-        <div style={{
-          marginTop: "1rem",
-          padding: "1rem",
-          backgroundColor: errorMessage ? "#ffe6e6" : "#f5f5f5",
-          borderRadius: "10px",
-          border: errorMessage ? "1px solid #cc0000" : "none"
-        }}>
-          {errorMessage ? (
-            <>
-              <h3 style={{ color: "#cc0000" }}>⚠️ Error</h3>
-              <div style={{ color: "#cc0000", fontSize: "14px" }}>{errorMessage}</div>
-            </>
-          ) : (
-            <>
-              <h3>Score: {grade}</h3>
-              <div style={{ whiteSpace: "pre-wrap", fontSize: "14px", lineHeight: "1.4" }}>
-                {response}
-              </div>
-            </>
-          )}
-        </div>
+        </>
       )}
     </div>
-  );
+  </div>
+);
 }
 
 export default App;
