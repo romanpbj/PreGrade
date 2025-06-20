@@ -315,7 +315,7 @@ return (
                 style={{
                   padding: '10px 20px',
                   backgroundColor: '#007cba',
-                  color: "#000",
+                  color: "#FFFFFF",
                   border: 'none',
                   borderRadius: '10px',
                   cursor: 'pointer',
