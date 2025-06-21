@@ -315,11 +315,11 @@ return (
                 style={{
                   padding: '10px 20px',
                   backgroundColor: '#007cba',
-                  color: "#FFFFFF",
+                  color: "#eee",
                   border: 'none',
                   borderRadius: '10px',
                   cursor: 'pointer',
-                  fontWeight: 600,
+                  fontWeight: '500',
                   marginTop: '1rem'
                 }}
                 onClick={gradeWithFile}
