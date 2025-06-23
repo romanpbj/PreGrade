@@ -86,7 +86,6 @@ const GradedAssignments = ({ userId, courseId }) => {
           await updateDoc(courseRef, {
             leniencyFactor: { weight: result.weight, bias: result.bias }
           });
-          console.log("✅ Leniency updated:", result);
         }
       }
 

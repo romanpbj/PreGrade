@@ -58,7 +58,7 @@ app.post("/api/grade", upload.single("file"), async (req, res) => {
   const safeWeight = parseFloat(weight) || 1;
   const safeBias = parseFloat(bias) || 0;
 
-const prompt = `You are an AI teaching assistant. Grade the following student's assignment and give direct feedback.
+const prompt = `Grade the following student's assignment and give direct feedback.
 
     Begin by assigning a raw score based on the rubric. Then apply the leniency adjustment using this formula:
 
@@ -90,6 +90,8 @@ const prompt = `You are an AI teaching assistant. Grade the following student's 
     3. For future submissions, be sure to double-check for minor grammatical issues — your ideas are strong, so polishing the writing will enhance them further.
 
     Your response should just include the PreGraded Score at the top, and then the 3 bullet points and thats it.
+
+    If the submition has nothing to do with the assignment, or is completely off-topic, give a score of 0 and say something like "This submission does not address the assignment prompt at all. Please review the assignment instructions and resubmit.".
 
     Assignment Instructions:
     ${assignmentText}

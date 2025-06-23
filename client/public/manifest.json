@@ -3,7 +3,6 @@
   "version": "1.0",
   "manifest_version": 3,
   "description": "AI-powered grader for Canvas",
-  "permissions": ["storage"],
 
   "host_permissions": [
     "https://canvas.uw.edu/courses/*/assignments/*",
