@@ -121,7 +121,16 @@ function injectSidebar() {
   document.body.appendChild(button);
 }
 
-// Inject only on Canvas assignment pages
-if (window.location.href.includes("/assignments/")) {
+const isCanvasAssignmentPage = () => {
+  const host = window.location.hostname;
+  const path = window.location.pathname;
+
+  const isCanvasDomain = host.endsWith('.instructure.com') || /^canvas\.[a-z]+\.(edu|org|net)$/.test(host);
+  const isAssignmentPage = /\/courses\/\d+\/assignments\/\d+/.test(path);
+
+  return isCanvasDomain && isAssignmentPage;
+};
+
+if (isCanvasAssignmentPage()) {
   injectSidebar();
 }
