@@ -3,26 +3,47 @@
   "version": "1.0",
   "manifest_version": 3,
   "description": "AI-powered grader for Canvas",
-  "permissions": ["tabs", "scripting", "activeTab", "storage"],
-  "host_permissions": ["<all_urls>"],
+  "permissions": ["storage"],
+
+  "host_permissions": [
+    "https://canvas.uw.edu/courses/*/assignments/*",
+    "https://canvas.harvard.instructure.com/courses/*/assignments/*",
+    "https://learnschool.org/courses/*/assignments/*"
+  ],
+
   "action": {
     "default_icon": {
       "128": "icons/icon128.png"
-    }
+    },
+    "default_popup": "popup.html"
   },
+
   "background": {
     "service_worker": "background.js"
   },
+
   "content_scripts": [
     {
-    "matches": ["<all_urls>"],
+      "matches": [
+        "https://canvas.uw.edu/courses/*/assignments/*",
+        "https://canvas.harvard.instructure.com/courses/*/assignments/*",
+        "https://learnschool.org/courses/*/assignments/*"
+      ],
       "js": ["content.js"]
     }
   ],
+
   "web_accessible_resources": [
     {
-      "resources": ["assets/*.js", "icons/icon128.png"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "assets/*.js",
+        "icons/icon128.png"
+      ],
+      "matches": [
+        "https://canvas.uw.edu/*",
+        "https://canvas.harvard.instructure.com/*",
+        "https://learnschool.org/*"
+      ]
     }
   ]
 }
