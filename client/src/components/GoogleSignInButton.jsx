@@ -1,4 +1,3 @@
-import React from 'react';
 import { loginWithGoogle } from '../firebase/auth';
 
 const GoogleSignInButton = ( {googleString, googleSuccess} ) => {

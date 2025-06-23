@@ -49,7 +49,7 @@ const CoursesList = ({ userId }) => {
   return (
     <div style={{
       marginBottom: '1rem',
-      borderRadius: '15px',
+      borderRadius: '10px',
       backgroundColor: '#fff',
       maxWidth: '100%',
       overflowX: 'hidden',
@@ -76,43 +76,44 @@ const CoursesList = ({ userId }) => {
             </button>
 
             {confirmDeleteId === course.id ? (
-              <>
+              <div style={{ display: 'flex', gap: '6px' }}>
                 <button
                   onClick={() => handleDeleteCourse(course.id)}
+                  title="Confirm Delete"
                   style={{
-                    backgroundColor: '#d32f2f',
-                    color: 'white',
+                    backgroundColor: 'transparent',
                     border: 'none',
-                    borderRadius: '4px',
-                    padding: '6px 10px',
-                    marginRight: '4px',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    fontSize: '18px',
+                    color: 'green'
                   }}
                 >
-                  Confirm
+                  ✓
                 </button>
                 <button
                   onClick={() => setConfirmDeleteId(null)}
+                  title="Cancel"
                   style={{
-                    backgroundColor: '#aaa',
-                    color: 'white',
+                    backgroundColor: 'transparent',
                     border: 'none',
-                    borderRadius: '4px',
-                    padding: '6px 10px',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    fontSize: '18px',
+                    color: 'red'
                   }}
                 >
-                  Cancel
+                  ✕
                 </button>
-              </>
+              </div>
             ) : (
               <button
                 onClick={() => setConfirmDeleteId(course.id)}
+                title="Delete"
                 style={{
-                  padding: '6px 10px',
+                  backgroundColor: 'transparent',
                   border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  fontSize: '18px',
+                  color: 'gray'
                 }}
               >
                 ✕

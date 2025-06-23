@@ -59,9 +59,8 @@ const AuthComponent = ({ onAuthSuccess, onCancel }) => {
     <div style={{
       marginBottom: "1rem",
       padding: "1rem 1.5rem",
-      border: "2px solid #007cba",
       borderRadius: "15px",
-      backgroundColor: "#f9f9f9",
+      backgroundColor: "#fff",
       maxWidth: "400px",
       margin: "0 auto"
     }}>
@@ -116,6 +115,7 @@ const AuthComponent = ({ onAuthSuccess, onCancel }) => {
             style={{
               maxWidth: "345px",
               margin: "0 auto",
+              marginLeft: "-10px",
               width: "100%",
               padding: "10px",
               border: "1px solid #ddd",
@@ -134,6 +134,7 @@ const AuthComponent = ({ onAuthSuccess, onCancel }) => {
           style={{
             maxWidth: "345px",
             margin: "0 auto",
+            marginLeft: "-10px",
             width: "100%",
             padding: "10px",
             border: "1px solid #ddd",
@@ -151,6 +152,7 @@ const AuthComponent = ({ onAuthSuccess, onCancel }) => {
           style={{
             maxWidth: "345px",
             margin: "0 auto",
+            marginLeft: "-10px",
             width: "100%",
             padding: "10px",
             border: "1px solid #ddd",

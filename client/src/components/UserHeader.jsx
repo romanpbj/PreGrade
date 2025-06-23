@@ -35,7 +35,14 @@ const UserHeader = ({ user, onShowAuth, onLogout, showAuth }) => {
       borderBottom: "1px solid #eee",
       position: "relative"
     }}>
-      <h2 style={{ margin: 0, color: "#007cba" }}>PreGrade</h2>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <img 
+          src="https://i.imgur.com/tgZYlwD.png" 
+          alt="PreGrade Logo"
+          style={{ width: "28px", height: "28px", objectFit: "contain", marginBottom: "9px" }} 
+        />
+        <h2 style={{ margin: 0, color: "#007cba", marginLeft: "-11px" }}>reGrade</h2>
+      </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: "10px", position: "relative" }} ref={dropdownRef}>
         {user && (
