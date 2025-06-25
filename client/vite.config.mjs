@@ -10,7 +10,6 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       input: {
-        popup: resolve(__dirname, 'popup.html'),
         panelLoader: resolve(__dirname, 'panel-loader.jsx'),
       },
       output: {
