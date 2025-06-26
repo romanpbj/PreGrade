@@ -1,6 +1,6 @@
 {
   "name": "PreGrade",
-  "version": "1.2",
+  "version": "1.0",
   "manifest_version": 3,
   "description": "AI-powered grader for Canvas",
 
@@ -27,14 +27,14 @@
         "https://canvas.harvard.instructure.com/courses/*/assignments/*",
         "https://learnschool.org/courses/*/assignments/*"
       ],
-      "js": ["content.js"]
+      "js": ["content.js", "assets/panelLoader.js"],
+      "css": ["assets/panelLoader-gXwUIqAr.css"]
     }
   ],
 
   "web_accessible_resources": [
     {
       "resources": [
-        "assets/*.js",
         "icons/icon128.png"
       ],
       "matches": [

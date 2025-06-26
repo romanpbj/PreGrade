@@ -109,13 +109,13 @@ function injectSidebar() {
       document.body.style.marginRight = "420px";
     }, 10);
 
-    const existingScript = document.querySelector('script[src*="panelLoader.js"]');
-    if (existingScript) existingScript.remove();
-
-    const script = document.createElement("script");
-    script.src = chrome.runtime.getURL("assets/panelLoader.js") + `?t=${Date.now()}`; // cache-busting
-    script.type = "module";
-    document.body.appendChild(script);
+    // Dispatch event to initialize React app
+    window.dispatchEvent(new CustomEvent('pregrade-panel-ready', {
+      detail: { 
+        panelElement: panel,
+        panelId: 'pregrade-sidebar'
+      }
+    }));
   });
 
   document.body.appendChild(button);
