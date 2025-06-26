@@ -86,6 +86,7 @@ const GradedAssignments = ({ userId, courseId }) => {
           await updateDoc(courseRef, {
             leniencyFactor: { weight: result.weight, bias: result.bias }
           });
+          console.log("✅ Leniency updated:", result);
         }
       }
 
@@ -137,11 +138,11 @@ const GradedAssignments = ({ userId, courseId }) => {
                 onClick={() => setConfirmDeleteId(null)}
                 title="Cancel"
                 style={{
-                    backgroundColor: 'transparent',
+                    backgroundColor: 'red !important', // Force the background color
                     border: 'none',
                     cursor: 'pointer',
                     fontSize: '18px',
-                    color: 'red'
+                    color: 'white', // Ensure text is visible on a red background
                 }}
                 >
                 ✕

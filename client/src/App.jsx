@@ -231,7 +231,16 @@ return (
         <>
           <div>
             <h3>{courses.length ? <></> : "Create Courses to grade for"}</h3>
-            <div style={{ marginBottom: '10px' }}>
+            <div 
+              style={{ 
+                display: "flex", 
+                flexWrap: "wrap", // Allows buttons to wrap if there are too many
+                justifyContent: "center", // Centers buttons horizontally
+                alignItems: "center", // Centers buttons vertically
+                gap: "10px", // Adds spacing between buttons
+                marginBottom: "10px" 
+              }}
+            >
               {courses.map(course => (
                 <button
                   key={course.id}
