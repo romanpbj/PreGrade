@@ -123,24 +123,6 @@ async function gradeWithFile() {
   }
 }
 
-  const navBtnsStyle = {
-    display: "flex",
-    justifyContent: "left",
-    marginTop: "1rem",
-    marginBottom: "1rem",
-  };
-
-  const buttonStyle = {
-    padding: "0.5rem 1rem",
-    border: "2px solid #007cba",
-    minWidth: "2500px",
-    borderRadius: "10px",
-    backgroundColor: "#fff",
-    color: "#000",
-    cursor: "pointer",
-    transition: "border 0.2s ease-in-out"
-  };
-
   const handleAuthSuccess = () => setShowAuth(false);
 
   if (authLoading) {

@@ -142,7 +142,7 @@ const GradedAssignments = ({ userId, courseId }) => {
                     border: 'none',
                     cursor: 'pointer',
                     fontSize: '18px',
-                    color: 'white', // Ensure text is visible on a red background
+                    color: 'red', // Ensure text is visible on a red background
                 }}
                 >
                 ✕
