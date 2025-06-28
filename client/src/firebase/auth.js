@@ -40,13 +40,3 @@ export async function logout() {
     return { success: false, error: error.message };
   }
 }
-
-export async function loginWithGoogle() {
-  const provider = new GoogleAuthProvider();
-  try {
-    const result = await signInWithPopup(auth, provider);
-    return { success: true, user: result.user };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-}

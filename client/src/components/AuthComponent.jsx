@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { signIn, signUp } from '../firebase/auth.js';
 import { createUserProfile } from '../firebase/database.js';
-import GoogleSignInButton from './GoogleSignInButton';
 
 const AuthComponent = ({ onAuthSuccess, onCancel }) => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -81,19 +80,6 @@ const AuthComponent = ({ onAuthSuccess, onCancel }) => {
             Get fast, personalized feedback on assignments using AI.
           </p>
         </div>
-      </div>
-
-      <div style={{ marginBottom: "10px", display: "flex", justifyContent: "center" }}>
-        {isSignUp ? <GoogleSignInButton googleString={"Create Account with Google"}googleSuccess={googleAuthSuccess} /> : <GoogleSignInButton googleString={"Sign in with Google"} googleSuccess={googleAuthSuccess} />}
-      </div>
-      <div style={{
-          display: "flex",
-          alignItems: "center",
-          margin: "20px 0"
-        }}>
-          <hr style={{ flex: 1, border: "none", borderTop: "1px solid #ccc" }} />
-          <span style={{ margin: "0 10px", color: "#888", fontSize: "14px" }}>or</span>
-          <hr style={{ flex: 1, border: "none", borderTop: "1px solid #ccc" }} />
       </div>
 
       <form
