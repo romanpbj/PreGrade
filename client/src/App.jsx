@@ -260,7 +260,7 @@ return (
               gap: '0.5rem'
             }}>
               <img
-                src="https://i.imgur.com/x1lQpVw.png"
+                src={chrome.runtime.getURL("icons/cloud.png")}
                 alt="Upload Icon"
                 style={{
                   width: '100px',

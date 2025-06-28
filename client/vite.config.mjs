@@ -8,6 +8,15 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
+    minify: 'terser',
+    terserOptions: {
+      format: {
+        comments: false,
+      },
+      compress: {
+        drop_console: true, // Optional: remove console.logs
+      },
+    },
     rollupOptions: {
       input: {
         panelLoader: resolve(__dirname, 'panel-loader.jsx'),
@@ -17,15 +26,13 @@ export default defineConfig({
           if (chunk.name === 'panelLoader') return 'assets/panelLoader.js';
           return 'assets/[name]-[hash].js';
         },
-        // Ensure CSS is output to the root directory with the expected name
         assetFileNames: (assetInfo) => {
           if (assetInfo.name && assetInfo.name.includes('index') && assetInfo.name.endsWith('.css')) {
             return 'panelLoader-[hash].css';
           }
           return 'assets/[name]-[hash].[ext]';
         },
-        // Bundle everything into single chunks
-        manualChunks: undefined
+        manualChunks: undefined, // Keeps everything bundled in single chunks
       }
     }
   }

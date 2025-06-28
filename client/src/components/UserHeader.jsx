@@ -37,7 +37,7 @@ const UserHeader = ({ user, onShowAuth, onLogout, showAuth }) => {
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
         <img 
-          src="https://i.imgur.com/tgZYlwD.png" 
+          src= {chrome.runtime.getURL("icons/logo.png")}
           alt="PreGrade Logo"
           style={{ width: "28px", height: "28px", objectFit: "contain", marginBottom: "9px" }} 
         />

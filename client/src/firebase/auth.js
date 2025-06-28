@@ -6,7 +6,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  updateProfile
+  updateProfile,
 } from 'firebase/auth';
 
 export async function signUp(email, password, displayName) {

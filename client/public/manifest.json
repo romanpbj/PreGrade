@@ -35,7 +35,7 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "icons/icon128.png"
+        "icons/icon128.png", "icons/cloud.png", "icons/logo.png", "icons/g-logo.png"
       ],
       "matches": [
         "https://canvas.uw.edu/*",

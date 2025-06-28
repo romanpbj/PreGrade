@@ -13,7 +13,7 @@ const GoogleSignInButton = ( {googleString, googleSuccess} ) => {
 
   return (
     <button onClick={handleClick} style={{  backgroundColor: "#fff", display: 'flex', alignItems: 'center', padding: '8px', paddingRight: '60px', paddingLeft: '60px', border: '1px solid #ccc', borderRadius: '30px' }}>
-      <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" style={{ width: '18px', marginRight: '8px' }} />
+      <img src={chrome.runtime.getURL("icons/g-logo.png")} alt="Google logo" style={{ width: '18px', marginRight: '8px' }} />
       {googleString}
     </button>
   );
