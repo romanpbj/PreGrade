@@ -9,7 +9,7 @@ const GradedAssignments = ({ userId, courseId }) => {
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [editingScoreId, setEditingScoreId] = useState(null);
   const [scoreInput, setScoreInput] = useState('');
-  const url = process.env.REACT_APP_API_URL;
+  const url = `https://pregrade.onrender.com`;
 
   useEffect(() => {
     if (!userId || !courseId) return;

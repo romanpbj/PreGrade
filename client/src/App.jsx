@@ -21,7 +21,7 @@ function App() {
   const [showAuth, setShowAuth] = useState(false);
   const [gradeCourseId, setGradeCourseId] = useState(null);
   const { user, loading: authLoading, handleLogout, getFormDataHeaders } = useAuth();
-  const url = process.env.REACT_APP_API_URL;
+  const url = `https://pregrade.onrender.com`;
   
   useEffect(() => {
     if (!user || !user.uid) {
