@@ -7,7 +7,8 @@
   "host_permissions": [
     "https://canvas.uw.edu/courses/*/assignments/*",
     "https://canvas.harvard.instructure.com/courses/*/assignments/*",
-    "https://learnschool.org/courses/*/assignments/*"
+    "https://learnschool.org/courses/*/assignments/*",
+    "https://pierce.instructure.com/courses/*/assignments/*"
   ],
 
   "action": {
@@ -25,7 +26,8 @@
       "matches": [
         "https://canvas.uw.edu/courses/*/assignments/*",
         "https://canvas.harvard.instructure.com/courses/*/assignments/*",
-        "https://learnschool.org/courses/*/assignments/*"
+        "https://learnschool.org/courses/*/assignments/*",
+        "https://pierce.instructure.com/courses/*/assignments/*"
       ],
       "js": ["content.js", "assets/panelLoader.js"],
       "css": ["assets/panelLoader-CPy1Gujd.css"]
@@ -40,7 +42,8 @@
       "matches": [
         "https://canvas.uw.edu/*",
         "https://canvas.harvard.instructure.com/*",
-        "https://learnschool.org/*"
+        "https://learnschool.org/*",
+        "https://pierce.instructure.com/*"
       ]
     }
   ]

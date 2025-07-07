@@ -4,6 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -19,9 +20,10 @@
     "express": "^5.1.0",
     "mammoth": "^1.9.1",
     "multer": "^2.0.1",
-    "npm": "^11.4.1",
+    "npm": "^11.4.2",
     "openai": "^5.1.1",
     "pdfjs-dist": "^5.3.31",
+    "start": "^5.1.0",
     "streamsearch": "^1.1.0"
   }
 }
