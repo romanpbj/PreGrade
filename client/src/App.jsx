@@ -21,7 +21,7 @@ function App() {
   const [showAuth, setShowAuth] = useState(false);
   const [gradeCourseId, setGradeCourseId] = useState(null);
   const { user, loading: authLoading, handleLogout, getFormDataHeaders } = useAuth();
-  const url = `https://pregrade.onrender.com`;
+  const url = import.meta.env.VITE_API_URL;
   
   useEffect(() => {
     if (!user || !user.uid) {
