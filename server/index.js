@@ -14,7 +14,7 @@ const openai = new OpenAI({
 });
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
@@ -34,6 +34,10 @@ async function extractTextFromPdf(buffer) {
 
   return fullText;
 }
+
+app.get('/', (req, res) => {
+  res.send('Welcome to PreGrade API!');
+});
 
 app.post("/api/grade", upload.single("file"), async (req, res) => {
   const { assignmentText, weight, bias } = req.body;
@@ -175,6 +179,15 @@ app.post('/api/leniency', async (req, res) => {
     res.status(500).json({ error: "Unexpected error invoking Python" });
   }
 });
+
+if (process.env.NODE_ENV === 'production') {
+  const __dirname = path.resolve();
+  app.use(express.static(path.join(__dirname, 'client/build')));
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+  });
+}
 
 app.listen(PORT, () => {
   console.log(` Server is running on http://localhost:${PORT}`);
