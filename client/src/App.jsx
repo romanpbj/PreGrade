@@ -21,7 +21,8 @@ function App() {
   const [showAuth, setShowAuth] = useState(false);
   const [gradeCourseId, setGradeCourseId] = useState(null);
   const { user, loading: authLoading, handleLogout, getFormDataHeaders } = useAuth();
-
+  const url = process.env.REACT_APP_API_URL || "http://localhost:3001";
+  
   useEffect(() => {
     if (!user || !user.uid) {
       setCourses([]);
@@ -89,7 +90,7 @@ async function gradeWithFile() {
 
       try {
         const headers = await getFormDataHeaders();
-        const res = await axios.post("http://localhost:3001/api/grade", formData, { headers });
+        const res = await axios.post(`${url}/api/grade`, formData, { headers });
 
         const feedback = res.data.feedback;
         const score = res.data.preGradedScore;
