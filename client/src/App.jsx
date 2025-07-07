@@ -21,7 +21,7 @@ function App() {
   const [showAuth, setShowAuth] = useState(false);
   const [gradeCourseId, setGradeCourseId] = useState(null);
   const { user, loading: authLoading, handleLogout, getFormDataHeaders } = useAuth();
-  const url = process.env.REACT_APP_API_URL || "http://localhost:3001";
+  const url = process.env.REACT_APP_API_URL;
   
   useEffect(() => {
     if (!user || !user.uid) {
