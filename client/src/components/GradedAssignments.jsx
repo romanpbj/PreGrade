@@ -74,7 +74,7 @@ const GradedAssignments = ({ userId, courseId }) => {
       }
 
       if (predicted.length >= 2) {
-        const response = await fetch(`${url}api/leniency`, {
+        const response = await fetch(`${url}/api/leniency`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ predicted, actual }),

@@ -1,13 +1,11 @@
 import { auth } from './config.js';
 import {
-  GoogleAuthProvider,
-  signInWithPopup,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
   updateProfile,
-} from 'firebase/auth';
+} from 'firebase/auth/web-extension'
 
 export async function signUp(email, password, displayName) {
   try {
